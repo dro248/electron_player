@@ -124,13 +124,16 @@
           icfFile = false,
           videoFile = false
 
+      debugger
       for(var i=0; i < fileList.length; i++){
-        console.log(fileList[i]["name"])
-        if (fileList[i]["name"].split(".") === "icf")
+        console.log(fileList[i]["name"].split(".")[1])
+        var ext = fileList[i]["name"].split(".")[1]
+        console.log("ext: " + ext)
+        if (ext === "json")
           jsonFile = true
-        else if (fileList[i]["name"].split(".") === "icf")
+        else if (ext === "icf")
           icfFile = true
-        else if (fileList[i]["name"].split(".") === "mp4")  /*Add all supported file types*/
+        else if (ext === "mp4" || ext === "m4v")  /*Add all supported file types*/
           videoFile = true
       }
       
