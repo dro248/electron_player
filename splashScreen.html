@@ -40,18 +40,18 @@
       opacity: 0.3;
     }
 
-    .playBut {
+    #playButton {
       display: inline-block;
       -webkit-transition: all 0.5s ease;
     }
 
-    .playBut svg{
+    #playButton svg{
       border-radius: 100%;
       background: black;
       box-shadow: 0 0 50px black;
     }
 
-    .playBut .triangle {
+    #playButton .triangle {
       -webkit-transition: all 0.7s ease-in-out;
       stroke-dasharray: 240;
       stroke-dashoffset: 480;
@@ -61,13 +61,13 @@
     }
 
     /*ON ACTIVE VIDEO EVENT*/
-    .playBut:hover .triangle {
+    #playButton:hover .triangle {
       stroke-dashoffset: 0;
       opacity: 1;
       stroke: #f8aa28;
       animation: nudge 0.7s ease-in-out;
     }
-    .playBut:hover .circle {
+    #playButton:hover .circle {
       stroke-dashoffset: 0;
       opacity: 1;
     }
@@ -91,7 +91,7 @@
     }
   </style>
   <div class='container'>
-    <a href='#'class='playBut'>
+    <a href='#' id='playButton' onclick='startPlayer()'>
       <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In  -->
       <svg version="1.1"
          xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
@@ -107,5 +107,16 @@
   </div>
 
   <h1>International<br>Cinema</h1>
+
+  <script type="text/javascript">
+
+    function startPlayer() {
+      const remote = require('electron').remote;
+      const BrowserWindow = remote.BrowserWindow;
+
+      var playerWindow = new BrowserWindow({ width: 800, height: 480 });
+      playerWindow.loadURL('file://' + __dirname + '/index.html');
+    }
+  </script>
 </body>
 </html>
