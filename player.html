@@ -25,6 +25,7 @@
       font-family: sans-serif;
       text-transform: uppercase;
       overflow: hidden;
+      margin: 0;
     }
     #filePickerDiv {
       position: absolute;
@@ -37,6 +38,9 @@
       text-align: center;
       color: #f8aa28;
       text-shadow: 5px 5px 5px black;
+      letter-spacing: 4px;
+      cursor: default;
+      user-select: none;
     }
     .container {
       width: 100%;
@@ -52,6 +56,7 @@
     }
     #playButton {
       display: inline-block;
+      border-radius: 100%;
       -webkit-transition: all 0.5s ease;
     }
     #playButton svg{
@@ -73,9 +78,8 @@
       stroke: #f8aa28;
       animation: nudge 0.7s ease-in-out;
     }
-    #playButton:hover .circle {
-      stroke-dashoffset: 0;
-      opacity: 1;
+    #playButton:hover{
+      box-shadow: 0 0 50px #fd1414;
     }
 
     #playerContainer {
@@ -111,9 +115,50 @@
       color: firebrick;
       border: 1px solid firebrick; 
     }
+
+    #header {
+      -webkit-app-region: drag;
+      /*background: #d8d8d8;*/
+      background: linear-gradient(#fbfafa, lightgrey, #c5c5c5);
+      height: 25px;
+
+    }
+
+    #closeBtn {
+      -webkit-app-region: no-drag;
+      /*background-color: firebrick;*/
+      background: radial-gradient(red, firebrick, black);
+      color: black;
+      border-radius: 100%;
+      border: none;
+      position: absolute;
+      right: 0;
+      margin: 2px;
+      height: 20px;
+      width: 20px;
+      padding: 2px;
+      outline: none;
+      transition: all .35s;
+    }
+
+    #closeBtn:hover {
+      background: radial-gradient(firebrick, black, black);
+      color: white;
+    }
+    
+    #closeBtn:active {
+      background: radial-gradient(firebrick, red, black);
+    }
+
+
   </style>
 
   <div id='splashScreen'>
+    <div id='header'>
+      <button id='closeBtn' onclick="window.close()">X</button>
+    </div>
+
+
     <div class='container'>
       <a href='#' id='playButton' onclick='startPlayer()'>
         <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In  -->
@@ -132,7 +177,7 @@
     <h1>International<br>Cinema</h1>
 
     <div id='filePickerDiv'>
-      File Upload: <input type="file" id="filePicker" multiple>
+      Select Video Files: <input type="file" id="filePicker" multiple>
     </div>
   </div>
   
@@ -171,7 +216,6 @@
           icfFile = false,
           videoFile = false
 
-      debugger
       for(var i=0; i < fileList.length; i++){
         console.log(fileList[i]["name"].split(".")[1])
         var ext = fileList[i]["name"].split(".")[1]
