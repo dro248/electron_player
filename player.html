@@ -1,14 +1,205 @@
-<!DOCTYPE html>  
-<html>  
+<!DOCTYPE html>
+<html>
 <head>
-	<link rel="stylesheet" type="text/css" href="normalize.css">
-	<link rel="stylesheet" type="text/css" href="style.css">
-	<title>International Cinema - Video Player</title>
-</head>  
-<body> 
-	<video controls>
-		<source src="panda.mp4" type="video/mp4">
-		<track label="English" kind="subtitles" srclang="en" src="kungfu.vtt" default>
-	</video>
-</body>  
-</html>  
+  <title>BYU International Cinema - Video Player</title>
+</head>
+<body>
+
+  <style type="text/css">
+    @font-face {
+      font-family: 'Lobster';
+      src: url('Lobster/Lobster-Regular.ttf')
+    }
+    @keyframes nudge {
+      0%    { transform: translateX(0);     }
+      30%   { transform: translateX(-5px);  }
+      50%   { transform: translateX(5px);   }
+      70%   { transform: translateX(-2px);  }
+      100%  { transform: translateX(0);     }
+    }
+    body {
+      background: #070000;  /* fallback for old browsers */
+      background: -webkit-linear-gradient(to right, #070000, #4C0001, #070000);  /* Chrome 10-25, Safari 5.1-6 */
+      background: linear-gradient(to right, #070000, #4C0001, #070000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+      color: white;
+      font-family: sans-serif;
+      text-transform: uppercase;
+      overflow: hidden;
+    }
+    #filePickerDiv {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+    h1{
+      font-family: "Lobster";
+      font-size: 70px;
+      text-align: center;
+      color: #f8aa28;
+      text-shadow: 5px 5px 5px black;
+    }
+    .container {
+      width: 100%;
+      text-align: center;
+      margin-top: 25vh;
+    }
+    .circle {
+      stroke: #f8aa28;
+      stroke-dasharray: 650;
+      stroke-dashoffset: 650;
+      -webkit-transition: all 0.5s ease-in-out;
+      opacity: 0.3;
+    }
+    #playButton {
+      display: inline-block;
+      -webkit-transition: all 0.5s ease;
+    }
+    #playButton svg{
+      border-radius: 100%;
+      background: black;
+      box-shadow: 0 0 50px black;
+    }
+    #playButton .triangle {
+      -webkit-transition: all 0.7s ease-in-out;
+      stroke-dasharray: 240;
+      stroke-dashoffset: 480;
+      stroke: grey;
+      /*stroke: firebrick;*/
+      transform: translateY(0);
+    }
+    #playButton:hover .triangle {
+      stroke-dashoffset: 0;
+      opacity: 1;
+      stroke: #f8aa28;
+      animation: nudge 0.7s ease-in-out;
+    }
+    #playButton:hover .circle {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+
+    #playerContainer {
+      visibility: hidden;
+    }
+
+    #player {
+      width: 100%;
+      position: absolute;
+      top: -20px;
+      left: 0;
+    }
+
+    #returnBtn {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      background-color: black;
+      color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 3px;
+      padding: 5px;
+      font-size: 15px;
+      transition: all .5s;
+    }
+
+    #returnBtn:hover {
+      color: rgba(255,255,255,1);
+      border: 1px solid rgba(255,255,255,1);
+    }
+    #returnBtn:active {
+      color: firebrick;
+      border: 1px solid firebrick; 
+    }
+  </style>
+
+  <div id='splashScreen'>
+    <div class='container'>
+      <a href='#' id='playButton' onclick='startPlayer()'>
+        <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In  -->
+        <svg version="1.1"
+           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+           x="0px" y="0px" width="213.7px" height="213.7px" viewBox="0 0 213.7 213.7" enable-background="new 0 0 213.7 213.7"
+           xml:space="preserve">
+
+        <polygon class='triangle' id="XMLID_18_" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="
+          73.5,62.5 148.5,105.8 73.5,149.1 "/>
+          
+        <circle class='circle' id="XMLID_17_" fill="none"  stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="106.8" cy="106.8" r="103.3"/>
+        </svg>
+      </a>
+    </div>
+    <h1>International<br>Cinema</h1>
+
+    <div id='filePickerDiv'>
+      File Upload: <input type="file" id="filePicker" multiple>
+    </div>
+  </div>
+  
+  <div id='playerContainer'>
+    <button id='returnBtn' onclick='hidePlayer()'>Return to Menu</button>
+    <video id='player' width='1500' height='800' controls>
+      <source src="panda.mp4" type="video/mp4">
+      <track label="English" kind="subtitles" srclang="en" src="kungfu.vtt" default>
+    </video>
+    </div>
+
+  <script type="text/javascript">
+    function startPlayer() {
+      const files = getSelectedFiles()
+      if (!files){
+        alert("Error: The selected folder does not contain an *.icf file. Please try again.")
+        return
+      }
+
+
+      // Hide Splash Screen
+      let splashScreen = document.getElementById('splashScreen')
+      splashScreen.style.visibility = "hidden"
+
+      // Show Player
+      let playerContainer = document.getElementById('playerContainer')
+      playerContainer.style.visibility = "visible"
+
+      // Set background to black
+      document.body.style.background = 'black'
+    }
+
+    function getSelectedFiles(){
+      var fileList = document.getElementById('filePicker').files,
+          jsonFile = false,
+          icfFile = false,
+          videoFile = false
+
+      debugger
+      for(var i=0; i < fileList.length; i++){
+        console.log(fileList[i]["name"].split(".")[1])
+        var ext = fileList[i]["name"].split(".")[1]
+        console.log("ext: " + ext)
+        if (ext === "json")
+          jsonFile = true
+        else if (ext === "icf")
+          icfFile = true
+        else if (ext === "mp4" || ext === "m4v")  /*Add all supported file types*/
+          videoFile = true
+      }
+      
+      // if all the necessary files are included, return the fileList; else return FALSE
+      return (jsonFile && icfFile && videoFile) ? fileList : false
+    }
+
+    function hidePlayer() {
+      // Show Splash Screen
+      let splashScreen = document.getElementById('splashScreen')
+      splashScreen.style.visibility = "visible"
+
+      // Hide Player
+      let playerContainer = document.getElementById('playerContainer')
+      playerContainer.style.visibility = "hidden"
+
+      // Set background to normal
+      document.body.style.background = 'linear-gradient(to right, #070000, #4C0001, #070000)'
+    }
+  </script>
+</body>
+</html>
