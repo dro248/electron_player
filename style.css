@@ -2,6 +2,7 @@
   font-family: 'Lobster';
   src: url('Lobster/Lobster-Regular.ttf')
 }
+
 @keyframes nudge {
   0%    { transform: translateX(0);     }
   30%   { transform: translateX(-5px);  }
@@ -9,22 +10,19 @@
   70%   { transform: translateX(-2px);  }
   100%  { transform: translateX(0);     }
 }
+
 body {
   background: #070000;  /* fallback for old browsers */
   background: -webkit-linear-gradient(to right, #070000, #4C0001, #070000);  /* Chrome 10-25, Safari 5.1-6 */
   background: linear-gradient(to right, #070000, #4C0001, #070000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   color: white;
   font-family: sans-serif;
-  text-transform: uppercase;
+  /*text-transform: uppercase;*/
   overflow: hidden;
   margin: 0;
   min-width: 900px;
 }
-#filePickerDiv {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-}
+
 h1{
   font-family: "Lobster";
   font-size: 70px;
@@ -35,91 +33,17 @@ h1{
   cursor: default;
   user-select: none;
 }
-.container {
-  width: 100%;
-  text-align: center;
-  margin-top: 25vh;
-}
-.circle {
-  stroke: #f8aa28;
-  stroke-dasharray: 650;
-  stroke-dashoffset: 650;
-  -webkit-transition: all 0.5s ease-in-out;
-  opacity: 0.3;
-}
-#playButton {
-  height: 210px;
-  display: inline-block;
-  border-radius: 100%;
-  -webkit-transition: all 0.5s ease;
-}
-#playButton svg{
-  border-radius: 100%;
-  background: black;
-  box-shadow: 0 0 50px black;
-}
-#playButton .triangle {
-  -webkit-transition: all 0.7s ease-in-out;
-  stroke-dasharray: 240;
-  stroke-dashoffset: 480;
-  stroke: grey;
-  /*stroke: firebrick;*/
-  transform: translateY(0);
-}
-#playButton:hover .triangle {
-  stroke-dashoffset: 0;
-  opacity: 1;
-  stroke: #f8aa28;
-  animation: nudge 0.7s ease-in-out;
-}
-#playButton:hover{
-  box-shadow: 0 0 50px #fd1414;
-}
 
-#playerContainer {
-  visibility: hidden;
-}
-
-#player {
-  width: 100%;
-  position: absolute;
-  top: -20px;
-  left: 0;
-}
-
-#returnBtn {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  background-color: black;
-  color: rgba(255,255,255,0.5);
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 3px;
-  padding: 5px;
-  font-size: 15px;
-  transition: all .5s;
-}
-
-#returnBtn:hover {
-  color: rgba(255,255,255,1);
-  border: 1px solid rgba(255,255,255,1);
-}
-#returnBtn:active {
-  color: firebrick;
-  border: 1px solid firebrick; 
-}
+/*SPLASH SCREEN STYLES*/
 
 #header {
   -webkit-app-region: drag;
-  /*background: #d8d8d8;*/
   background: linear-gradient(#fbfafa, lightgrey, #c5c5c5);
   height: 25px;
 }
 
 #closeBtn {
   -webkit-app-region: no-drag;
-  /*background-color: firebrick;*/
   background: radial-gradient(red, firebrick, black);
   color: black;
   border-radius: 100%;
@@ -147,8 +71,105 @@ h1{
   font-family: sans-serif;
   font-size: 10px;
   font-weight: 900;
-  color: grey;
+  letter-spacing: .5px;
+  user-select: none;
+
+  color: #545454;
   display: inline-block;
   margin-left: 43%;
   margin-top: 7px;
 }
+
+.container {
+  width: 100%;
+  text-align: center;
+  margin-top: 25vh;
+}
+
+.circle {
+  stroke: #f8aa28;
+  stroke-dasharray: 650;
+  stroke-dashoffset: 650;
+  -webkit-transition: all 0.5s ease-in-out;
+  opacity: 0.3;
+}
+
+#playButton {
+  height: 210px;
+  display: inline-block;
+  border-radius: 100%;
+  -webkit-transition: all 0.5s ease;
+}
+
+#playButton svg{
+  border-radius: 100%;
+  background: black;
+  box-shadow: 0 0 50px black;
+}
+
+#playButton .triangle {
+  -webkit-transition: all 0.7s ease-in-out;
+  stroke-dasharray: 240;
+  stroke-dashoffset: 480;
+  stroke: grey;
+  /*stroke: firebrick;*/
+  transform: translateY(0);
+}
+
+#playButton:hover .triangle {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  stroke: #f8aa28;
+  animation: nudge 0.7s ease-in-out;
+}
+
+#playButton:hover{
+  box-shadow: 0 0 50px #fd1414;
+}
+
+#filePickerDiv {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+
+
+/*PLAYER STYLES*/
+
+#playerContainer {
+  visibility: hidden;
+}
+
+#player {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    left: 0;
+}
+
+#returnBtn {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  z-index: 2;
+  background-color: rgba(255,255,255, 0.2);
+  color: rgba(255,255,255,0.5);
+  border: 1px solid black;
+  outline: none;
+  padding: 15px;
+  font-size: 10px 15px;
+  transition: all .25s;
+
+}
+
+#returnBtn:hover {
+  color: rgba(255,255,255,1);
+  border: 1px solid grey;
+}
+#returnBtn:active {
+  color: firebrick;
+  border: 1px solid firebrick; 
+}
+
