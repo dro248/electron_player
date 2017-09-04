@@ -4,11 +4,14 @@ function startPlayer() {
     alert("Error: The selected folder does not contain an *.icf file. Please try again.")
     return
   }
-
-
   // Hide Splash Screen
   let splashScreen = document.getElementById('splashScreen')
   splashScreen.style.visibility = "hidden"
+
+  // Set video src to given file
+  let player = document.getElementById('player')
+  let videoPath = files['videoFile']['path']
+  player.src = videoPath
 
   // Show Player
   let playerContainer = document.getElementById('playerContainer')
@@ -16,28 +19,41 @@ function startPlayer() {
 
   // Set background to black
   document.body.style.background = 'black'
+
+  // Play the video
+  player.play()
 }
 
 function getSelectedFiles(){
   var fileList = document.getElementById('filePicker').files,
-      jsonFile = false,
-      icfFile = false,
-      videoFile = false
+      jsonFileExists = false,
+      jsonFile = null,
+      icfFileExists = false,
+      icfFile = null,
+      videoFileExists = false,
+      videoFile = null
 
   for(var i=0; i < fileList.length; i++){
     console.log(fileList[i]["name"].split(".")[1])
     var ext = fileList[i]["name"].split(".")[1]
     console.log("ext: " + ext)
-    if (ext === "json")
-      jsonFile = true
-    else if (ext === "icf")
-      icfFile = true
-    else if (ext === "mp4" || ext === "m4v")  /*Add all supported file types*/
-      videoFile = true
+    if (ext === "json"){
+      jsonFileExists = true
+      jsonFile = fileList[i]
+    }
+    else if (ext === "icf"){
+      icfFileExists = true
+      icfFile = fileList[i]
+    }
+    else if (ext === "mp4" || ext === "m4v")  /*TODO: Add all supported file types*/
+      videoFileExists = true
+      videoFile = fileList[i]
   }
   
   // if all the necessary files are included, return the fileList; else return FALSE
-  return (jsonFile && icfFile && videoFile) ? fileList : false
+  return (jsonFile && icfFile && videoFile) 
+    ? {'jsonFile': jsonFile, 'icfFile': icfFile, 'videoFile': videoFile} 
+    : false
 }
 
 function hidePlayer() {

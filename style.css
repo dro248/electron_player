@@ -17,7 +17,6 @@ body {
   background: linear-gradient(to right, #070000, #4C0001, #070000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   color: white;
   font-family: sans-serif;
-  /*text-transform: uppercase;*/
   overflow: hidden;
   margin: 0;
   min-width: 900px;
@@ -38,8 +37,14 @@ h1{
 
 #header {
   -webkit-app-region: drag;
-  background: linear-gradient(#fbfafa, lightgrey, #c5c5c5);
   height: 25px;
+  background: linear-gradient(#fbfafa, lightgrey, #c5c5c5);
+}
+
+#headerLogo {
+  height: 15px;
+  margin-left: 10px;
+  margin-top: 5px;
 }
 
 #closeBtn {
@@ -76,8 +81,8 @@ h1{
 
   color: #545454;
   display: inline-block;
-  margin-left: 43%;
-  margin-top: 7px;
+  margin-top: 8px;
+  margin-left: 8px;
 }
 
 .container {
@@ -112,7 +117,6 @@ h1{
   stroke-dasharray: 240;
   stroke-dashoffset: 480;
   stroke: grey;
-  /*stroke: firebrick;*/
   transform: translateY(0);
 }
 
@@ -132,7 +136,6 @@ h1{
   bottom: 0;
   left: 0;
 }
-
 
 
 /*PLAYER STYLES*/
@@ -168,8 +171,10 @@ h1{
   color: rgba(255,255,255,1);
   border: 1px solid grey;
 }
+
 #returnBtn:active {
-  color: firebrick;
-  border: 1px solid firebrick; 
+  color: rgba(255,255,255,0.5);
+  background-color: rgba(255,255,255, 0.2);
+  border: 1px solid rgba(255,255,255, 0.2);
 }
 
