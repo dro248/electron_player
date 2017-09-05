@@ -12,8 +12,9 @@ electron.app.on('ready', function () {
 	mainWindow = new electron.BrowserWindow({
 		width: 1000, 
 		height: 780, 
-		frame: false,
+		frame: true,
 		icon: path.join(__dirname, 'filmstrip.png')
-	})  
+	})
+	mainWindow.setMenu(null)
 	mainWindow.loadURL('file://' + __dirname + '/player.html')  
 })
