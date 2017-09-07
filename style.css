@@ -178,3 +178,30 @@ h1{
   border: 1px solid rgba(255,255,255, 0.2);
 }
 
+video {
+  width: 100%;
+  height: 100%;
+}
+
+/* Styling the subtitles*/
+video::-webkit-media-text-track-display {
+ /*   color: green;
+    z-index: 2147483647;*/
+}
+
+/*Styling the video controls panel*/
+video::-webkit-media-controls-panel {
+  z-index: 100;
+}
+
+
+#test {
+  /* Set z-index to MAX VALUE */
+  z-index: 2147483647;
+  border: 1px solid red;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  width: 0;
+}

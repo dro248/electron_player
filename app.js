@@ -15,6 +15,9 @@ electron.app.on('ready', function () {
 		frame: true,
 		icon: path.join(__dirname, 'filmstrip.png')
 	})
-	mainWindow.setMenu(null)
+
+	// Dev mode: comment out the following line
+	// mainWindow.setMenu(null)
+	
 	mainWindow.loadURL('file://' + __dirname + '/player.html')  
 })

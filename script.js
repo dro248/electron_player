@@ -29,10 +29,17 @@ var player = {
     // Create time update listener to handle annotations
     player.video_obj.addEventListener("timeupdate", (event) => {
       // timeStamp is in milliseconds
-      console.log(event.timeStamp)
+      // console.log(event.timeStamp)
 
       // TODO: handle events
     })
+
+
+    player.video_obj.addEventListener("loadedmetadata", ()=> {
+      // Draw box initially
+      player.draw_box() 
+    })
+
   },
 
   hide_player: () => {
@@ -83,6 +90,57 @@ var player = {
       : false
   },
 
+  get_video_dimensions: () => {
+    var video = player.video_obj
+
+    // Ratio of the video's intrisic dimensions
+    var videoRatio = video.videoWidth / video.videoHeight;
+    
+    // The width and height of the video element
+    var width = video.offsetWidth 
+    var height = video.offsetHeight
+
+    // The ratio of the element's width to its height
+    var elementRatio = width/height;
+    
+    // If the video element is short and wide
+    if(elementRatio > videoRatio) width = height * videoRatio;
+    
+    // It must be tall and thin, or exactly equal to the original ratio
+    else height = width / videoRatio;
+    return {
+      width: width,
+      height: height
+    };
+  },
+
+
+  draw_box: () => {
+    var videoDimensions = player.get_video_dimensions()
+    var vidHeight = videoDimensions.height
+    var vidWidth = videoDimensions.width
+
+    // Get window Height
+    var winHeight = window.innerHeight
+    var winWidth = window.innerWidth
+
+    var boxTop = 0
+    var boxLeft = 0
+    if(winHeight > vidHeight)
+      boxTop = (winHeight - vidHeight) / 2
+    else
+      boxLeft = (winWidth - vidWidth) / 2
+
+    var box = document.getElementById('test')
+
+    box.style.top = `${boxTop}px`
+    box.style.left = `${boxLeft}px`
+
+    box.style.height = `${vidHeight}px`
+    box.style.width = `${vidWidth}px`
+  },
+
+
   // Annotation Handlers
 
   play: () => { player.video_obj.play() },
@@ -97,3 +155,12 @@ var player = {
   
   toggle_mute: () => { player.video_obj.muted =  !player.video_obj.muted }
 }
+
+
+
+
+
+
+window.addEventListener("resize", () => {
+  player.draw_box()
+})
