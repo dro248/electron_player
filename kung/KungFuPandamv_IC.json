@@ -1,1 +1,51 @@
-[{"media": [{"target": "player", "url": ["https://hummedia.byu.edu/video/8817200.mp4"], "tracks": [{"id": "59935fae04743b62ca91373a", "required": true, "name": "Layer 0", "trackEvents": [], "settings": null}], "duration": 2, "id": "598a186804743bf1a11bfb37", "name": "Kung Fu Panda.m4v"}], "targets": [], "creator": "verdu"}, {"media": [{"target": "player", "url": ["https://hummedia.byu.edu/video/8817200.mp4"], "tracks": [{"id": "59935fad04743b623b6c95d5", "required": false, "name": "Layer 0", "trackEvents": [{"popcornOptions": {"start": "2.49975739374", "end": "6.95414845609", "target": "target-0"}, "type": "skip"}, {"popcornOptions": {"start": "9.02086363828", "end": "14.1290635298", "target": "target-0"}, "type": "mutePlugin"}, {"popcornOptions": {"start": "35.538330828", "end": "42.9289179051", "target": "target-0"}, "type": "blank"}], "settings": null}], "duration": 2, "id": "598a186804743bf1a11bfb37", "name": "Kung Fu Panda.m4v"}], "targets": [], "creator": "verdu"}]
+[
+  {
+    "media": [
+      {
+        "target": "player",
+        "url": [
+          "https://hummedia.byu.edu/video/8817200.mp4"
+        ],
+        "tracks": [
+          {
+            "id": "59935fad04743b623b6c95d5",
+            "required": false,
+            "name": "Layer 0",
+            "trackEvents": [
+              {
+                "popcornOptions": {
+                  "start": "2.49975739374",
+                  "end": "6.95414845609",
+                  "target": "target-0"
+                },
+                "type": "skip"
+              },
+              {
+                "popcornOptions": {
+                  "start": "9.02086363828",
+                  "end": "14.1290635298",
+                  "target": "target-0"
+                },
+                "type": "mutePlugin"
+              },
+              {
+                "popcornOptions": {
+                  "start": "35.538330828",
+                  "end": "42.9289179051",
+                  "target": "target-0"
+                },
+                "type": "blank"
+              }
+            ],
+            "settings": null
+          }
+        ],
+        "duration": 2,
+        "id": "598a186804743bf1a11bfb37",
+        "name": "Kung Fu Panda.m4v"
+      }
+    ],
+    "targets": [],
+    "creator": "alex-n-dave"
+  }
+]
