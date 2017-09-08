@@ -32,8 +32,6 @@ var player = {
     // Play the video
     player.video_obj.play()
 
-    console.log(player.annotations)
-
     // Create time update listener to handle annotations
     player.video_obj.addEventListener("timeupdate", (event) => {
       // timeStamp is in milliseconds
@@ -76,9 +74,7 @@ var player = {
         videoFileExists = false
 
     for(var i=0; i < fileList.length; i++){
-      console.log(fileList[i]["name"].split(".")[1])
       var ext = fileList[i]["name"].split(".")[1]
-      console.log("ext: " + ext)
       if (ext === "json"){
         jsonFileExists = true
         jsonFile = fileList[i]
@@ -149,11 +145,12 @@ var player = {
 
   parse_annotations: (jsonFile) => {
     var jsonReader = new FileReader();
-    jsonReader.onload = function(){
-      var text = jsonReader.result;
-      // console.log(text);
-      player.annotations = JSON.parse(text)
+    jsonReader.onload = function readJson(e){
+      var jsonObj = JSON.parse(e.target.result);
+      player.annotations = jsonObj[0]['media'][0]['tracks'][0]['trackEvents'];
+      console.log(player.annotations)
     };
+    jsonReader.readAsText(jsonFile);
   },
 
 
