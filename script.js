@@ -9,42 +9,38 @@ var player = {
       return
     }
 
+    var initialise = () => {
+      console.log("initialising")
+      // Hide Splash Screen
+      let splashScreen = document.getElementById('splashScreen')
+      splashScreen.style.visibility = "hidden"
+  
+      // Set video src to given file
+      let videoPath = files['videoFile']['path']
+      player.video_obj.src = videoPath
+  
+  
+      // Show Player
+      let playerContainer = document.getElementById('playerContainer')
+      playerContainer.style.visibility = "visible"
+  
+      // Set background to black
+      document.body.style.background = 'black'
+  
+      // Play the video
+      player.video_obj.play()
+  
+      player.annotate();
+  
+      console.log(player.annotations)
+
+      player.video_obj.addEventListener("loadedmetadata", ()=> {
+        // Draw box initially
+        player.draw_box() 
+      })
+    }
     // Instantiate object variable 'annotations'
-    player.parse_annotations(files['jsonFile'])
-
-
-    // Hide Splash Screen
-    let splashScreen = document.getElementById('splashScreen')
-    splashScreen.style.visibility = "hidden"
-
-    // Set video src to given file
-    let videoPath = files['videoFile']['path']
-    player.video_obj.src = videoPath
-
-
-    // Show Player
-    let playerContainer = document.getElementById('playerContainer')
-    playerContainer.style.visibility = "visible"
-
-    // Set background to black
-    document.body.style.background = 'black'
-
-    // Play the video
-    player.video_obj.play()
-
-    // Create time update listener to handle annotations
-    player.video_obj.addEventListener("timeupdate", (event) => {
-      // timeStamp is in milliseconds
-      // console.log(event.timeStamp)
-
-      // TODO: handle events
-    })
-
-
-    player.video_obj.addEventListener("loadedmetadata", ()=> {
-      // Draw box initially
-      player.draw_box() 
-    })
+    player.parse_n_play(files['jsonFile'])
 
   },
 
@@ -143,16 +139,27 @@ var player = {
     box.style.width = `${vidWidth}px`
   },
 
-  parse_annotations: (jsonFile) => {
+  parse_n_play: (jsonFile, initialise_callback) => {
     var jsonReader = new FileReader();
-    jsonReader.onload = function readJson(e){
-      var jsonObj = JSON.parse(e.target.result);
-      player.annotations = jsonObj[0]['media'][0]['tracks'][0]['trackEvents'];
-      console.log(player.annotations)
-    };
-    jsonReader.readAsText(jsonFile);
+    jsonReader.onload = function(){
+      var text = jsonReader.result
+      player.annotations = JSON.parse(text)[0]["media"][0]["tracks"][0]["trackEvents"]
+      player.annotate()
+      initialise_callback()
+    }
+    jsonReader.readAsText(jsonFile)
   },
 
+  annotate: () => {
+    console.log("in the annotate function")
+    // Create time update listener to handle annotations
+    player.video_obj.addEventListener("timeupdate", (event) => {
+      // timeStamp is in milliseconds
+      console.log(event.timeStamp)
+
+      // TODO: handle events
+    })
+  },
 
   // Annotation Handlers
 
