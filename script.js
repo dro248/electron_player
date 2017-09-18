@@ -40,7 +40,7 @@ var player = {
       })
     }
     // Instantiate object variable 'annotations'
-    player.parse_n_play(files['jsonFile'])
+    player.parse_n_play(files['jsonFile'], initialise)
 
   },
 
