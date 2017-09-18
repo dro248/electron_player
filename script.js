@@ -1,5 +1,6 @@
 var player = {
   video_obj: document.getElementById('player'),
+  annotations: null,
   
   start_player: () => { 
     const files = player.get_selected_files()
@@ -7,6 +8,11 @@ var player = {
       alert("Error: The selected folder does not contain an *.icf file. Please try again.")
       return
     }
+
+    // Instantiate object variable 'annotations'
+    player.parse_annotations(files['jsonFile'])
+
+
     // Hide Splash Screen
     let splashScreen = document.getElementById('splashScreen')
     splashScreen.style.visibility = "hidden"
@@ -68,9 +74,7 @@ var player = {
         videoFileExists = false
 
     for(var i=0; i < fileList.length; i++){
-      console.log(fileList[i]["name"].split(".")[1])
       var ext = fileList[i]["name"].split(".")[1]
-      console.log("ext: " + ext)
       if (ext === "json"){
         jsonFileExists = true
         jsonFile = fileList[i]
@@ -114,7 +118,6 @@ var player = {
     };
   },
 
-
   draw_box: () => {
     var videoDimensions = player.get_video_dimensions()
     var vidHeight = videoDimensions.height
@@ -138,6 +141,16 @@ var player = {
 
     box.style.height = `${vidHeight}px`
     box.style.width = `${vidWidth}px`
+  },
+
+  parse_annotations: (jsonFile) => {
+    var jsonReader = new FileReader();
+    jsonReader.onload = function readJson(e){
+      var jsonObj = JSON.parse(e.target.result);
+      player.annotations = jsonObj[0]['media'][0]['tracks'][0]['trackEvents'];
+      console.log(player.annotations)
+    };
+    jsonReader.readAsText(jsonFile);
   },
 
 
