@@ -13,7 +13,8 @@ electron.app.on('ready', function () {
 		width: 1000, 
 		height: 780, 
 		frame: true,
-		icon: path.join(__dirname, 'filmstrip.png')
+		icon: path.join(__dirname, 'filmstrip.png'),
+		webPreferences: { experimentalFeatures: true}
 	})
 
 	// Dev mode: comment out the following line

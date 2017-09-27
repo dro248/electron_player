@@ -30,8 +30,6 @@ var player = {
       // Play the video
       player.video_obj.play()
   
-      player.annotate();
-  
       console.log(player.annotations)
 
       player.video_obj.addEventListener("loadedmetadata", ()=> {
@@ -143,7 +141,15 @@ var player = {
     var jsonReader = new FileReader();
     jsonReader.onload = function(){
       var text = jsonReader.result
-      player.annotations = JSON.parse(text)[0]["media"][0]["tracks"][0]["trackEvents"]
+      player.annotations = []
+      var jsonGuts = JSON.parse(text)[0]["media"][0]["tracks"][0]["trackEvents"]
+      for (var i = 0; i < jsonGuts.length; i++) {
+        var annotation = {"start": jsonGuts[i].popcornOptions['start'], 
+                          "end": jsonGuts[i].popcornOptions['end'],
+                          "type": jsonGuts[i]['type']
+                         }
+        player.annotations.push(annotation)
+      }
       player.annotate()
       initialise_callback()
     }
@@ -152,12 +158,61 @@ var player = {
 
   annotate: () => {
     console.log("in the annotate function")
-    // Create time update listener to handle annotations
-    player.video_obj.addEventListener("timeupdate", (event) => {
-      // timeStamp is in milliseconds
-      console.log(event.timeStamp)
-
-      // TODO: handle events
+    player.video_obj.addEventListener("playing", (event) => {
+      var vidPlaying = setInterval(() => {
+        if (player.video_obj.paused) {
+          clearInterval(vidPlaying)
+        }
+        
+        var time = player.video_obj.currentTime
+        var numAnnotations = player.annotations.length
+        for (var i = 0; i < numAnnotations; i++) {
+          var vMuted = player.video_obj.muted
+          var vBlanked = player.video_obj.style.filter == "brightness(0)"
+          
+          var a = player.annotations[i]
+          var aStart = a['start']
+          var aEnd = a['end']
+          var aType = a['type']
+          
+          switch (a['type']) {
+            case 'skip':
+              if (time >= aStart && time < aEnd) {
+                console.log('skipped to '+Number(aEnd).toFixed(3))
+                clearInterval(vidPlaying)
+                player.skip_to(aEnd)
+                player.play()
+              }
+              break
+            case 'mutePlugin':
+              if (time >= aStart && time < aEnd) {
+                if (!vMuted) {
+                  console.log('mute on')
+                  player.mute()
+                }
+              } else {
+                if (vMuted) {
+                  console.log('mute off')
+                  player.unmute()
+                }
+              }
+              break
+            case 'blank':
+              if (time >= aStart && time < aEnd) {
+                if (!vBlanked) {
+                  console.log('blank on')
+                  player.blank()
+                }
+              } else {
+                if (vBlanked) {
+                  console.log('blank off')
+                  player.unblank()
+                }
+              }
+              break
+          }
+        }
+      }, 16)
     })
   },
 
@@ -165,7 +220,7 @@ var player = {
 
   play: () => { player.video_obj.play() },
   pause: () => { player.video_obj.pause() },
-  skip_to: (time) => {},
+  skip_to: (time) => { player.video_obj.currentTime = time },
   
   blank: () => { player.video_obj.style = "filter: brightness(0)" },
   unblank: () => { player.video_obj.style = "filter: brightness(1)" },
@@ -173,7 +228,9 @@ var player = {
   blur: (val) => { player.video_obj.style = `filter: blur(${val}px)`},
   unblur: () => { player.video_obj.style = "filter: blur(0)" },
   
-  toggle_mute: () => { player.video_obj.muted =  !player.video_obj.muted }
+  mute: () => { player.video_obj.muted =  true },
+  unmute: () => { player.video_obj.muted = false }
+
 }
 
 
