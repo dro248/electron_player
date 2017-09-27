@@ -168,7 +168,7 @@ var player = {
         var numAnnotations = player.annotations.length
         for (var i = 0; i < numAnnotations; i++) {
           var vMuted = player.video_obj.muted
-          var vBlanked = player.video_obj.style.filter == "brightness(0)"
+          var vBlanked = player.video_obj.classList.contains('blanked')
           
           var a = player.annotations[i]
           var aStart = a['start']
@@ -222,8 +222,8 @@ var player = {
   pause: () => { player.video_obj.pause() },
   skip_to: (time) => { player.video_obj.currentTime = time },
   
-  blank: () => { player.video_obj.style = "filter: brightness(0)" },
-  unblank: () => { player.video_obj.style = "filter: brightness(1)" },
+  blank: () => { player.video_obj.classList.add('blanked') },
+  unblank: () => { player.video_obj.classList.remove('blanked') },
   
   blur: (val) => { player.video_obj.style = `filter: blur(${val}px)`},
   unblur: () => { player.video_obj.style = "filter: blur(0)" },
