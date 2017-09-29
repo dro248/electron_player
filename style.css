@@ -13,20 +13,20 @@
 
 body {
   background: #070000;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #070000, #4C0001, #070000);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, #070000, #4C0001, #070000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: -webkit-linear-gradient(to right, #1e425e, #839aa8, #1e425e);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #1e425e, #839aa8, #1e425e); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   color: white;
   font-family: sans-serif;
   overflow: hidden;
   margin: 0;
-  min-width: 900px;
+  min-width: 340px;
 }
 
 h1{
   font-family: "Lobster";
   font-size: 70px;
   text-align: center;
-  color: #f8aa28;
+  color: #bebcb6;
   text-shadow: 5px 5px 5px black;
   letter-spacing: 4px;
   cursor: default;
@@ -88,7 +88,7 @@ h1{
 .container {
   width: 100%;
   text-align: center;
-  margin-top: 25vh;
+  margin-top: 5%;
 }
 
 .circle {
@@ -99,8 +99,14 @@ h1{
   opacity: 0.3;
 }
 
+#logo {
+  height: 400px;
+  width: 400px;
+}
+
 #playButton {
-  height: 210px;
+  margin-top: 5%;
+  height: 100px;
   display: inline-block;
   border-radius: 100%;
   -webkit-transition: all 0.5s ease;
@@ -109,7 +115,7 @@ h1{
 #playButton svg{
   border-radius: 100%;
   background: black;
-  box-shadow: 0 0 50px black;
+  box-shadow: 0 0 10px black;
 }
 
 #playButton .triangle {
@@ -123,12 +129,11 @@ h1{
 #playButton:hover .triangle {
   stroke-dashoffset: 0;
   opacity: 1;
-  stroke: #f8aa28;
-  animation: nudge 0.7s ease-in-out;
+  stroke: white;
 }
 
 #playButton:hover{
-  box-shadow: 0 0 50px #fd1414;
+  box-shadow: 0 0 50px #1e425e;
 }
 
 #filePickerDiv {

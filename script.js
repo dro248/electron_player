@@ -2,6 +2,15 @@ var player = {
   video_obj: document.getElementById('player'),
   annotations: null,
   
+  button_press: () => {
+    const files = player.get_selected_files()
+    if (!files){
+      document.getElementById('filePicker').click()
+    } else {
+      player.start_player()
+    }
+  },
+  
   start_player: () => { 
     const files = player.get_selected_files()
     if (!files){
@@ -55,7 +64,7 @@ var player = {
     player.video_obj.pause()
 
     // Set background to normal
-    document.body.style.background = 'linear-gradient(to right, #070000, #4C0001, #070000)'
+    document.body.style.background = 'linear-gradient(to right, #1e425e, #839aa8, #1e425e)'
   },
 
   get_selected_files: () => {
@@ -158,6 +167,7 @@ var player = {
 
   annotate: () => {
     console.log("in the annotate function")
+    var currentAnnotation = -1
     player.video_obj.addEventListener("playing", (event) => {
       var vidPlaying = setInterval(() => {
         if (player.video_obj.paused) {
@@ -169,6 +179,7 @@ var player = {
         for (var i = 0; i < numAnnotations; i++) {
           var vMuted = player.video_obj.muted
           var vBlanked = player.video_obj.classList.contains('blanked')
+          var vBlurred = player.video_obj.classList.contains('blurred')
           
           var a = player.annotations[i]
           var aStart = a['start']
@@ -184,29 +195,54 @@ var player = {
                 player.play()
               }
               break
-            case 'mutePlugin':
-              if (time >= aStart && time < aEnd) {
-                if (!vMuted) {
-                  console.log('mute on')
-                  player.mute()
-                }
-              } else {
-                if (vMuted) {
-                  console.log('mute off')
-                  player.unmute()
+            case 'mutePlugin':            
+              if (currentAnnotation === i || currentAnnotation === -1) {
+                if (time >= aStart && time < aEnd) {
+                  if (!vMuted) {
+                    console.log('mute on')
+                    currentAnnotation = i;
+                    player.mute()
+                  }
+                } else {
+                  if (vMuted) {
+                    console.log('mute off')
+                    currentAnnotation = -1
+                    player.unmute()
+                  }
                 }
               }
               break
             case 'blank':
-              if (time >= aStart && time < aEnd) {
-                if (!vBlanked) {
-                  console.log('blank on')
-                  player.blank()
+              if (currentAnnotation === i || currentAnnotation === -1) {
+                if (time >= aStart && time < aEnd) {
+                  if (!vBlanked) {
+                    console.log('blank on')
+                    currentAnnotation = i;
+                    player.blank()
+                  }
+                } else {
+                  if (vBlanked) {
+                    console.log('blank off')
+                    currentAnnotation = -1
+                    player.unblank()
+                  }
                 }
-              } else {
-                if (vBlanked) {
-                  console.log('blank off')
-                  player.unblank()
+              }
+              break
+            case 'blur':
+              if (currentAnnotation === i || currentAnnotation === -1) {
+                if (time >= aStart && time < aEnd) {
+                  if (!vBlurred) {
+                    console.log('blur on')
+                    currentAnnotation = i;
+                    player.blur()
+                  }
+                } else {
+                  if (vBlurred) {
+                    console.log('blur off')
+                    currentAnnotation = -1
+                    player.unblur()
+                  }
                 }
               }
               break
@@ -222,11 +258,41 @@ var player = {
   pause: () => { player.video_obj.pause() },
   skip_to: (time) => { player.video_obj.currentTime = time },
   
-  blank: () => { player.video_obj.classList.add('blanked') },
-  unblank: () => { player.video_obj.classList.remove('blanked') },
+  blank: () => {
+    player.video_obj.classList.add('blanked')
+    var style = document.createElement('style')
+    style.id = 'mask'
+    style.innerHTML = `
+      video.blanked::-webkit-media-controls {
+        background-color: black;
+      }
+      video.blanked::-webkit-media-text-track-container {
+        z-index: 1;
+      }`
+    document.body.appendChild(style)
+  },
+  unblank: () => {
+    player.video_obj.classList.remove('blanked')
+    document.getElementById('mask').outerHTML=''
+  },
   
-  blur: (val) => { player.video_obj.style = `filter: blur(${val}px)`},
-  unblur: () => { player.video_obj.style = "filter: blur(0)" },
+  blur: () => {
+    player.video_obj.classList.add('blurred')
+    var style = document.createElement('style')
+    style.id = 'mask'
+    style.innerHTML = `
+      video.blurred::-webkit-media-controls {
+        backdrop-filter: blur(10px);
+      }
+      video.blurred::-webkit-media-text-track-container {
+        z-index: 2147483647;
+      }`
+    document.body.appendChild(style)
+  },
+  unblur: () => {
+    player.video_obj.classList.remove('blurred')
+    document.getElementById('mask').outerHTML=''
+  },
   
   mute: () => { player.video_obj.muted =  true },
   unmute: () => { player.video_obj.muted = false }

@@ -14,8 +14,8 @@
             "trackEvents": [
               {
                 "popcornOptions": {
-                  "start": "2.49975739374",
-                  "end": "6.95414845609",
+                  "start": "0",
+                  "end": "35",
                   "target": "target-0"
                 },
                 "type": "skip"
