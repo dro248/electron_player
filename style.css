@@ -132,6 +132,18 @@ h1{
   stroke: white;
 }
 
+#playButton.ready .triangle {
+  -webkit-transition: all 0.7s ease-in-out;
+  stroke-dashoffset: 0;
+  stroke: yellow;
+  fill: black;
+}
+
+#playButton:hover.ready .triangle {
+  -webkit-transition: fill 0.7s ease-in-out;
+  fill: yellow;
+}
+
 #playButton:hover{
   box-shadow: 0 0 50px #1e425e;
 }
@@ -140,6 +152,10 @@ h1{
   position: absolute;
   bottom: 0;
   left: 0;
+}
+
+#files {
+  text-align: center;
 }
 
 

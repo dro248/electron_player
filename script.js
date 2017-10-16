@@ -6,6 +6,11 @@ var player = {
     const files = player.get_selected_files()
     if (!files){
       document.getElementById('filePicker').click()
+      document.getElementById('filePicker').onchange = function() {
+        document.getElementById('files').innerHTML = player.get_selected_files().icfFile.name
+        document.getElementById('playButton').classList.add('ready')
+        document.getElementById('filePicker').onchange = null
+      }
     } else {
       player.start_player()
     }
@@ -32,6 +37,10 @@ var player = {
       // Show Player
       let playerContainer = document.getElementById('playerContainer')
       playerContainer.style.visibility = "visible"
+      
+      // Hide Splash Screen
+      let splashScreenContainer = document.getElementById('splashScreen')
+      splashScreenContainer.style.visibility = "hidden"
   
       // Set background to black
       document.body.style.background = 'black'
@@ -59,12 +68,18 @@ var player = {
     // Hide Player
     let playerContainer = document.getElementById('playerContainer')
     playerContainer.style.visibility = "hidden"
+    document.getElementById('playButton').classList.remove('ready')
 
     // Pause the video
     player.video_obj.pause()
 
     // Set background to normal
     document.body.style.background = 'linear-gradient(to right, #1e425e, #839aa8, #1e425e)'
+    
+    //Clear selected files
+    document.getElementById('filePicker').value = ''
+    console.log(document.getElementById('filePicker').files)
+    document.getElementById('files').innerHTML = "Select Files"
   },
 
   get_selected_files: () => {
