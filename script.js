@@ -182,7 +182,7 @@ var player = {
 
   annotate: () => {
     console.log("in the annotate function")
-    var currentAnnotation = -1
+    var currently = {'muting': -1, 'blanking': -1, 'blurring': -1}
     player.video_obj.addEventListener("playing", (event) => {
       var vidPlaying = setInterval(() => {
         if (player.video_obj.paused) {
@@ -210,52 +210,52 @@ var player = {
                 player.play()
               }
               break
-            case 'mutePlugin':            
-              if (currentAnnotation === i || currentAnnotation === -1) {
+            case 'mutePlugin':
+              if (currently.muting === -1 || currently.muting === i) {
                 if (time >= aStart && time < aEnd) {
                   if (!vMuted) {
                     console.log('mute on')
-                    currentAnnotation = i;
+                    currently.muting = i
                     player.mute()
                   }
                 } else {
                   if (vMuted) {
                     console.log('mute off')
-                    currentAnnotation = -1
+                    currently.muting = -1
                     player.unmute()
                   }
                 }
               }
               break
             case 'blank':
-              if (currentAnnotation === i || currentAnnotation === -1) {
+              if (currently.blanking === -1 || currently.blanking === i) {
                 if (time >= aStart && time < aEnd) {
                   if (!vBlanked) {
                     console.log('blank on')
-                    currentAnnotation = i;
+                    currently.blanking = i
                     player.blank()
                   }
                 } else {
                   if (vBlanked) {
                     console.log('blank off')
-                    currentAnnotation = -1
+                    currently.blanking = -1
                     player.unblank()
                   }
                 }
               }
               break
             case 'blur':
-              if (currentAnnotation === i || currentAnnotation === -1) {
+              if (!currently.blurring || currently.blurring === i) {
                 if (time >= aStart && time < aEnd) {
                   if (!vBlurred) {
                     console.log('blur on')
-                    currentAnnotation = i;
+                    currently.blurring = i
                     player.blur()
                   }
                 } else {
                   if (vBlurred) {
                     console.log('blur off')
-                    currentAnnotation = -1
+                    currently.blurring = -1
                     player.unblur()
                   }
                 }
