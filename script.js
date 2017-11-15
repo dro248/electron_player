@@ -166,12 +166,26 @@ var player = {
     jsonReader.onload = function(){
       var text = jsonReader.result
       player.annotations = []
-      var jsonGuts = JSON.parse(text)[0]["media"][0]["tracks"][0]["trackEvents"]
+      var jsonObj = JSON.parse(text)
+      if (jsonObj[0]["media"]) {
+        var jsonGuts = jsonObj[0]["media"][0]["tracks"][0]["trackEvents"]
+      } else {
+      
+        var jsonGuts = jsonObj
+      }
       for (var i = 0; i < jsonGuts.length; i++) {
-        var annotation = {"start": jsonGuts[i].popcornOptions['start'], 
-                          "end": jsonGuts[i].popcornOptions['end'],
-                          "type": jsonGuts[i]['type']
-                         }
+        if (jsonObj[0]["media"]) {
+          var annotation = {"start": jsonGuts[i].popcornOptions['start'], 
+                            "end": jsonGuts[i].popcornOptions['end'],
+                            "type": jsonGuts[i]['type']
+                           }
+        } else {
+          var annotation = {"start": jsonGuts[i].options['start'], 
+                            "end": jsonGuts[i].options['end'],
+                            "type": jsonGuts[i].options['type'],
+                            "details": jsonGuts[i].options['details']
+                           }
+        }
         player.annotations.push(annotation)
       }
       player.annotate()
@@ -190,6 +204,7 @@ var player = {
         }
         
         var time = player.video_obj.currentTime
+
         var numAnnotations = player.annotations.length
         for (var i = 0; i < numAnnotations; i++) {
           var vMuted = player.video_obj.muted
@@ -200,6 +215,7 @@ var player = {
           var aStart = a['start']
           var aEnd = a['end']
           var aType = a['type']
+          var aDetails = a['details']
           
           switch (a['type']) {
             case 'skip':
@@ -210,9 +226,10 @@ var player = {
                 player.play()
               }
               break
+            case 'mute':
             case 'mutePlugin':
-              if (currently.muting === -1 || currently.muting === i) {
-                if (time >= aStart && time < aEnd) {
+              if (currently.muting === -1 || currently.muting === i) { //if no annotation is currently muting or *this* current annotaiton is muting
+                if (time >= aStart && time < aEnd) { //if within annotation time
                   if (!vMuted) {
                     console.log('mute on')
                     currently.muting = i
@@ -258,6 +275,40 @@ var player = {
                     currently.blurring = -1
                     player.unblur()
                   }
+                }
+              }
+              break
+            case 'censor':
+              if (time >= aStart && time < aEnd) {
+                if (!document.getElementById('censor'+i)) {
+                  var censor = document.createElement('div')
+                  censor.id = 'censor' + i
+                  censor.classList.add('censor')
+                  censor.classList.add(aDetails['type'])
+                  censor.style = `
+                    width: ` + aDetails['size'][aStart] + `%;
+                    height: 0;
+                    padding-bottom: ` + aDetails['size'][aStart] + `%;
+                    left: ` + aDetails['position'][aStart][0] + `%;
+                    top: ` + aDetails['position'][aStart][1] + `%;` //padding-bottom sets the height relative to the width
+                  if (aDetails['type'] == 'black') {
+                    censor.style['background-color'] = 'black'
+                  } else if (aDetails['type'] == 'blur') {
+                    censor.style['backdrop-filter'] = 'blur(' + aDetails['amount'] + ')'
+                  }
+                  document.getElementById('test').appendChild(censor)
+                } else {
+                  var timeR = Math.floor(time * 100) / 100 //time rounded
+                  console.log(timeR)
+                  if (aDetails['position'][timeR]) {
+                    document.getElementById('censor'+i).style.left = aDetails['position'][tim][0]+'%'
+                    document.getElementById('censor'+i).style.top = aDetails['position'][Math.floor(time)][1]+'%'
+                  }
+                  //document.getElementById('censor'+i).style.left = Number(document.getElementById('censor'+i).style.left.substring(0, document.getElementById('censor'+i).style.left.indexOf('px')))+0.8+'px'
+                }
+              } else {
+                if (document.getElementById('censor'+i)) {
+                  document.getElementById('censor'+i).outerHTML = '';
                 }
               }
               break

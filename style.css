@@ -226,3 +226,8 @@ video::-webkit-media-controls-panel {
   height: 0;
   width: 0;
 }
+
+.censor {
+  z-index: 2147483647;
+  position: relative;
+}
