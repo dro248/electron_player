@@ -216,10 +216,10 @@ video::-webkit-media-controls-panel {
 }
 
 
-#test {
+#box {
   /* Set z-index to MAX VALUE */
   z-index: 2147483647;
-  border: 1px solid red;
+  border: 0px solid red;
   position: absolute;
   top: 0;
   left: 0;

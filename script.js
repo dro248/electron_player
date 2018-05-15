@@ -49,6 +49,20 @@ var player = {
       player.video_obj.play()
   
       console.log(player.annotations)
+  
+      player.censors = []
+      for (var i = 0; i < player.annotations.length; i++) {
+        if (player.annotations[i].type == 'censor') {
+          var censor = []
+          censor[0] = player.annotations[i].start
+          censor[1] = player.annotations[i].end
+          censor[2] = []
+          Object.entries(player.annotations[i].details.position).forEach(([key, val]) => {
+            censor[2].push([key, val[0], val[1]])
+          })
+          player.censors.push(censor)
+        }
+      }
 
       player.video_obj.addEventListener("loadedmetadata", ()=> {
         // Draw box initially
@@ -116,24 +130,24 @@ var player = {
     var video = player.video_obj
 
     // Ratio of the video's intrisic dimensions
-    var videoRatio = video.videoWidth / video.videoHeight;
+    var videoRatio = video.videoWidth / video.videoHeight
     
     // The width and height of the video element
     var width = video.offsetWidth 
     var height = video.offsetHeight
 
     // The ratio of the element's width to its height
-    var elementRatio = width/height;
+    var elementRatio = width/height
     
     // If the video element is short and wide
     if(elementRatio > videoRatio) width = height * videoRatio;
     
     // It must be tall and thin, or exactly equal to the original ratio
-    else height = width / videoRatio;
+    else height = width / videoRatio
     return {
       width: width,
       height: height
-    };
+    }
   },
 
   draw_box: () => {
@@ -152,7 +166,7 @@ var player = {
     else
       boxLeft = (winWidth - vidWidth) / 2
 
-    var box = document.getElementById('test')
+    var box = document.getElementById('box')
 
     box.style.top = `${boxTop}px`
     box.style.left = `${boxLeft}px`
@@ -162,21 +176,21 @@ var player = {
   },
 
   parse_n_play: (jsonFile, initialise_callback) => {
-    var jsonReader = new FileReader();
+    var jsonReader = new FileReader()
     jsonReader.onload = function(){
       var text = jsonReader.result
       player.annotations = []
       var jsonObj = JSON.parse(text)
       if (jsonObj[0]["media"]) {
         var jsonGuts = jsonObj[0]["media"][0]["tracks"][0]["trackEvents"]
-      } else {
-      
+      } else {      
         var jsonGuts = jsonObj
       }
       for (var i = 0; i < jsonGuts.length; i++) {
         if (jsonObj[0]["media"]) {
           var annotation = {"start": jsonGuts[i].popcornOptions['start'], 
                             "end": jsonGuts[i].popcornOptions['end'],
+                            "details": jsonGuts[i].popcornOptions['details'],
                             "type": jsonGuts[i]['type']
                            }
         } else {
@@ -198,9 +212,10 @@ var player = {
     console.log("in the annotate function")
     var currently = {'muting': -1, 'blanking': -1, 'blurring': -1}
     player.video_obj.addEventListener("playing", (event) => {
-      var vidPlaying = setInterval(() => {
+      onFrameAdv()
+      function onFrameAdv() {
         if (player.video_obj.paused) {
-          clearInterval(vidPlaying)
+          return
         }
         
         var time = player.video_obj.currentTime
@@ -221,9 +236,7 @@ var player = {
             case 'skip':
               if (time >= aStart && time < aEnd) {
                 console.log('skipped to '+Number(aEnd).toFixed(3))
-                clearInterval(vidPlaying)
                 player.skip_to(aEnd)
-                player.play()
               }
               break
             case 'mute':
@@ -281,47 +294,51 @@ var player = {
             case 'censor':
               if (time >= aStart && time < aEnd) {
                 if (!document.getElementById('censor'+i)) {
+                  console.log("censor on")
                   var censor = document.createElement('div')
                   censor.id = 'censor' + i
                   censor.classList.add('censor')
                   censor.classList.add(aDetails['type'])
                   censor.style = `
-                    width: ` + aDetails['size'][aStart] + `%;
+                    position: absolute;
+                    width: ` + aDetails['size'][aStart][0] + `%;
                     height: 0;
-                    padding-bottom: ` + aDetails['size'][aStart] + `%;
+                    padding-bottom: ` + aDetails['size'][aStart][1] + `%;
                     left: ` + aDetails['position'][aStart][0] + `%;
                     top: ` + aDetails['position'][aStart][1] + `%;` //padding-bottom sets the height relative to the width
-                  if (aDetails['type'] == 'black') {
-                    censor.style['background-color'] = 'black'
+                  if (aDetails['type'] == 'black' || aDetails['type'] == 'red') {
+                    censor.style['background-color'] = aDetails['type']//'black'
                   } else if (aDetails['type'] == 'blur') {
                     censor.style['backdrop-filter'] = 'blur(' + aDetails['amount'] + ')'
                   }
-                  document.getElementById('test').appendChild(censor)
+                  document.getElementById('box').appendChild(censor)
                 } else {
-                  var timeR = Math.floor(time * 100) / 100 //time rounded
-                  console.log(timeR)
-                  if (aDetails['position'][timeR]) {
-                    document.getElementById('censor'+i).style.left = aDetails['position'][tim][0]+'%'
-                    document.getElementById('censor'+i).style.top = aDetails['position'][Math.floor(time)][1]+'%'
+                  for (var j = 0; j < player.censors.length; j++) {
+                    annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
+                    document.getElementById('censor'+i).style.left = aDetails['position'][annoTime][0]+'%'
+                    document.getElementById('censor'+i).style.top = aDetails['position'][annoTime][1]+'%'
                   }
-                  //document.getElementById('censor'+i).style.left = Number(document.getElementById('censor'+i).style.left.substring(0, document.getElementById('censor'+i).style.left.indexOf('px')))+0.8+'px'
                 }
               } else {
                 if (document.getElementById('censor'+i)) {
-                  document.getElementById('censor'+i).outerHTML = '';
+                  console.log("censor off")
+                  document.getElementById('censor'+i).outerHTML = ''
                 }
               }
               break
           }
         }
-      }, 16)
+        requestAnimationFrame(onFrameAdv)
+      }
     })
   },
 
   // Annotation Handlers
 
   play: () => { player.video_obj.play() },
+
   pause: () => { player.video_obj.pause() },
+
   skip_to: (time) => { player.video_obj.currentTime = time },
   
   blank: () => {
@@ -337,6 +354,7 @@ var player = {
       }`
     document.body.appendChild(style)
   },
+
   unblank: () => {
     player.video_obj.classList.remove('blanked')
     document.getElementById('mask').outerHTML=''
@@ -355,20 +373,17 @@ var player = {
       }`
     document.body.appendChild(style)
   },
+
   unblur: () => {
     player.video_obj.classList.remove('blurred')
     document.getElementById('mask').outerHTML=''
   },
   
   mute: () => { player.video_obj.muted =  true },
+
   unmute: () => { player.video_obj.muted = false }
 
 }
-
-
-
-
-
 
 window.addEventListener("resize", () => {
   player.draw_box()
