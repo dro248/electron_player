@@ -181,13 +181,13 @@ var player = {
       var text = jsonReader.result
       player.annotations = []
       var jsonObj = JSON.parse(text)
-      if (jsonObj[0]["media"]) {
-        var jsonGuts = jsonObj[0]["media"][0]["tracks"][0]["trackEvents"]
+      if (jsonObj["media"]) {
+        var jsonGuts = jsonObj["media"][0]["tracks"][0]["trackEvents"]
       } else {      
         var jsonGuts = jsonObj
       }
       for (var i = 0; i < jsonGuts.length; i++) {
-        if (jsonObj[0]["media"]) {
+        if (jsonObj["media"]) {
           var annotation = {"start": jsonGuts[i].popcornOptions['start'], 
                             "end": jsonGuts[i].popcornOptions['end'],
                             "details": jsonGuts[i].popcornOptions['details'],
