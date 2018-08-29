@@ -301,9 +301,9 @@ var player = {
                   censor.classList.add(aDetails['type'])
                   censor.style = `
                     position: absolute;
-                    width: ` + aDetails['size'][aStart][0] + `%;
+                    width: ` + aDetails['size'][aStart] + `%;
                     height: 0;
-                    padding-bottom: ` + aDetails['size'][aStart][1] + `%;
+                    padding-bottom: ` + aDetails['size'][aStart] + `%;
                     left: ` + aDetails['position'][aStart][0] + `%;
                     top: ` + aDetails['position'][aStart][1] + `%;` //padding-bottom sets the height relative to the width
                   if (aDetails['type'] == 'black' || aDetails['type'] == 'red') {
