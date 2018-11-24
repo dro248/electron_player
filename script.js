@@ -7,7 +7,7 @@ var player = {
     if (!files){
       document.getElementById('filePicker').click()
       document.getElementById('filePicker').onchange = function() {
-        document.getElementById('files').innerHTML = player.get_selected_files().icfFile.name
+        document.getElementById('files').innerHTML = player.get_selected_files().videoFile.name
         document.getElementById('playButton').classList.add('ready')
         document.getElementById('filePicker').onchange = null
       }
@@ -121,7 +121,7 @@ var player = {
     }
 
     // if all the necessary files are included, return the fileList; else return FALSE
-    return (jsonFile && icfFile && videoFile)
+    return (jsonFile && videoFile)
       ? {'jsonFile': jsonFile, 'icfFile': icfFile, 'videoFile': videoFile}
       : false
   },
