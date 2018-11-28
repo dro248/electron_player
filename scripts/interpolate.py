@@ -53,6 +53,8 @@ for a_i, a in enumerate(ann_in):
             a['options']['details']['position'] = {stringify(t): p for t, p
                                                    in sorted(tmp_pos_dict.items())}  # noqa:E501
             ann_out.append(a)
+        else:
+            ann_out.append(a)
     except KeyError:
         ann_out.append(a)
 
