@@ -1,13 +1,13 @@
 var player = {
   video_obj: document.getElementById('player'),
   annotations: null,
-  
+
   button_press: () => {
     const files = player.get_selected_files()
     if (!files){
       document.getElementById('filePicker').click()
       document.getElementById('filePicker').onchange = function() {
-        document.getElementById('files').innerHTML = player.get_selected_files().icfFile.name
+        document.getElementById('files').innerHTML = player.get_selected_files().videoFile.name
         document.getElementById('playButton').classList.add('ready')
         document.getElementById('filePicker').onchange = null
       }
@@ -15,8 +15,8 @@ var player = {
       player.start_player()
     }
   },
-  
-  start_player: () => { 
+
+  start_player: () => {
     const files = player.get_selected_files()
     if (!files){
       alert("Error: The selected folder does not contain an *.icf file. Please try again.")
@@ -28,28 +28,28 @@ var player = {
       // Hide Splash Screen
       let splashScreen = document.getElementById('splashScreen')
       splashScreen.style.visibility = "hidden"
-  
+
       // Set video src to given file
       let videoPath = files['videoFile']['path']
       player.video_obj.src = videoPath
-  
-  
+
+
       // Show Player
       let playerContainer = document.getElementById('playerContainer')
       playerContainer.style.visibility = "visible"
-      
+
       // Hide Splash Screen
       let splashScreenContainer = document.getElementById('splashScreen')
       splashScreenContainer.style.visibility = "hidden"
-  
+
       // Set background to black
       document.body.style.background = 'black'
-  
+
       // Play the video
       player.video_obj.play()
-  
+
       console.log(player.annotations)
-  
+
       player.censors = []
       for (var i = 0; i < player.annotations.length; i++) {
         if (player.annotations[i].type == 'censor') {
@@ -66,7 +66,7 @@ var player = {
 
       player.video_obj.addEventListener("loadedmetadata", ()=> {
         // Draw box initially
-        player.draw_box() 
+        player.draw_box()
       })
     }
     // Instantiate object variable 'annotations'
@@ -89,7 +89,7 @@ var player = {
 
     // Set background to normal
     document.body.style.background = 'linear-gradient(to right, #1e425e, #839aa8, #1e425e)'
-    
+
     //Clear selected files
     document.getElementById('filePicker').value = ''
     console.log(document.getElementById('filePicker').files)
@@ -119,10 +119,10 @@ var player = {
         videoFileExists = true
         videoFile = fileList[i]
     }
-    
+
     // if all the necessary files are included, return the fileList; else return FALSE
-    return (jsonFile && icfFile && videoFile) 
-      ? {'jsonFile': jsonFile, 'icfFile': icfFile, 'videoFile': videoFile} 
+    return (jsonFile && videoFile)
+      ? {'jsonFile': jsonFile, 'icfFile': icfFile, 'videoFile': videoFile}
       : false
   },
 
@@ -131,17 +131,17 @@ var player = {
 
     // Ratio of the video's intrisic dimensions
     var videoRatio = video.videoWidth / video.videoHeight
-    
+
     // The width and height of the video element
-    var width = video.offsetWidth 
+    var width = video.offsetWidth
     var height = video.offsetHeight
 
     // The ratio of the element's width to its height
     var elementRatio = width/height
-    
+
     // If the video element is short and wide
     if(elementRatio > videoRatio) width = height * videoRatio;
-    
+
     // It must be tall and thin, or exactly equal to the original ratio
     else height = width / videoRatio
     return {
@@ -183,18 +183,18 @@ var player = {
       var jsonObj = JSON.parse(text)
       if (jsonObj["media"]) {
         var jsonGuts = jsonObj["media"][0]["tracks"][0]["trackEvents"]
-      } else {      
+      } else {
         var jsonGuts = jsonObj
       }
       for (var i = 0; i < jsonGuts.length; i++) {
         if (jsonObj["media"]) {
-          var annotation = {"start": jsonGuts[i].popcornOptions['start'], 
+          var annotation = {"start": jsonGuts[i].popcornOptions['start'],
                             "end": jsonGuts[i].popcornOptions['end'],
                             "details": jsonGuts[i].popcornOptions['details'],
                             "type": jsonGuts[i]['type']
                            }
         } else {
-          var annotation = {"start": jsonGuts[i].options['start'], 
+          var annotation = {"start": jsonGuts[i].options['start'],
                             "end": jsonGuts[i].options['end'],
                             "type": jsonGuts[i].options['type'],
                             "details": jsonGuts[i].options['details']
@@ -217,7 +217,7 @@ var player = {
         if (player.video_obj.paused) {
           return
         }
-        
+
         var time = player.video_obj.currentTime
 
         var numAnnotations = player.annotations.length
@@ -225,13 +225,13 @@ var player = {
           var vMuted = player.video_obj.muted
           var vBlanked = player.video_obj.classList.contains('blanked')
           var vBlurred = player.video_obj.classList.contains('blurred')
-          
+
           var a = player.annotations[i]
           var aStart = a['start']
           var aEnd = a['end']
           var aType = a['type']
           var aDetails = a['details']
-          
+
           switch (a['type']) {
             case 'skip':
               if (time >= aStart && time < aEnd) {
@@ -301,9 +301,8 @@ var player = {
                   censor.classList.add(aDetails['type'])
                   censor.style = `
                     position: absolute;
-                    width: ` + aDetails['size'][aStart] + `%;
-                    height: 0;
-                    padding-bottom: ` + aDetails['size'][aStart] + `%;
+                    width: ` + aDetails['position'][aStart][2] + `%;
+                    height: ` + aDetails['position'][aStart][3] + `%;
                     left: ` + aDetails['position'][aStart][0] + `%;
                     top: ` + aDetails['position'][aStart][1] + `%;` //padding-bottom sets the height relative to the width
                   if (aDetails['type'] == 'black' || aDetails['type'] == 'red') {
@@ -317,6 +316,10 @@ var player = {
                     annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
                     document.getElementById('censor'+i).style.left = aDetails['position'][annoTime][0]+'%'
                     document.getElementById('censor'+i).style.top = aDetails['position'][annoTime][1]+'%'
+                    if (aDetails['position'][annoTime][2] && aDetails['position'][annoTime][3]) {
+                      document.getElementById('censor'+i).style.width = aDetails['position'][annoTime][2]+'%'
+                      document.getElementById('censor'+i).style.height = aDetails['position'][annoTime][3]+'%'
+                    }
                   }
                 }
               } else {
@@ -340,7 +343,7 @@ var player = {
   pause: () => { player.video_obj.pause() },
 
   skip_to: (time) => { player.video_obj.currentTime = time },
-  
+
   blank: () => {
     player.video_obj.classList.add('blanked')
     var style = document.createElement('style')
@@ -359,7 +362,7 @@ var player = {
     player.video_obj.classList.remove('blanked')
     document.getElementById('mask').outerHTML=''
   },
-  
+
   blur: () => {
     player.video_obj.classList.add('blurred')
     var style = document.createElement('style')
@@ -378,7 +381,7 @@ var player = {
     player.video_obj.classList.remove('blurred')
     document.getElementById('mask').outerHTML=''
   },
-  
+
   mute: () => { player.video_obj.muted =  true },
 
   unmute: () => { player.video_obj.muted = false }
