@@ -9,7 +9,6 @@ def hms2s(time_str):
     output = [time_str]
     for t in re.findall('([0-9:.]+)', time_str, flags=re.S):
         times = [float(i) for i in t.split(':')]
-        print(times)
         size = len(times)
         if size > 3:
             raise NotImplementedError('Expected input: HH:MM:SS or MM:SS.')
