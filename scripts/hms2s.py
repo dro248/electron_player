@@ -7,7 +7,7 @@ import sys
 def hms2s(time_str):
     """Convert HH:MM:SS times to seconds."""
     output = [time_str]
-    for t in re.findall('([0-9:.]+)', time_str, flags=re.S):
+    for t in re.findall('([0-9:]+(?:\.[0-9]+)?)', time_str, flags=re.S):
         times = [float(i) for i in t.split(':')]
         size = len(times)
         if size > 3:
