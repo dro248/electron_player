@@ -64,7 +64,7 @@ var player = {
         }
       }
 
-      player.video_obj.addEventListener("loadedmetadata", ()=> {
+      Events.addListener(player.video_obj, "loadedmetadata", ()=> {
         // Draw box initially
         player.draw_box()
       })
@@ -211,7 +211,7 @@ var player = {
   annotate: () => {
     console.log("in the annotate function")
     var currently = {'muting': -1, 'blanking': -1, 'blurring': -1}
-    player.video_obj.addEventListener("playing", (event) => {
+    Events.addListener(player.video_obj, "playing", (event) => {
       onFrameAdv()
       function onFrameAdv() {
         if (player.video_obj.paused) {
@@ -388,6 +388,6 @@ var player = {
 
 }
 
-window.addEventListener("resize", () => {
+Events.addListener(window, "resize", () => {
   player.draw_box()
 })
