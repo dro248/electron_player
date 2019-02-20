@@ -1,11 +1,11 @@
 const Events = (function() {
     var listeners = []
 
-    const matcher = (element, eventname, callback) => {
-        (evl) => evl.element === element && evl.eventname === eventname && evl.callback === callback
+    const matcher = (element, eventname) => {
+        (evl) => evl.element === element && evl.eventname === eventname
     }
 
-    var exists = (element, eventname, callback) => listeners.some(matcher(element, eventname, callback))
+    var exists = (element, eventname) => listeners.some(matcher(element, eventname, callback))
 
     function addListener(element, eventname, callback) {
         if (exists(element, eventname)) {
