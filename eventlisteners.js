@@ -2,7 +2,7 @@ const Events = (function() {
     var listeners = []
 
     const matcher = (element, eventname) => {
-        (evl) => evl.element === element && evl.eventname === eventname
+        return (evl) => evl.element === element && evl.eventname === eventname
     }
 
     var exists = (element, eventname) => listeners.some(matcher(element, eventname, callback))
@@ -22,8 +22,7 @@ const Events = (function() {
             console.log(`Attempted to remove non-existent listener`)
             return false
         }
-        element.removeEventListener(eventname, callback)
-        const isMatch = matcher(element, eventname, callback)
+        const isMatch = matcher(element, eventname)
         for (let [i, l] of listeners) {
             if (isMatch(l)) {
                 console.log(listeners[i])
