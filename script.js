@@ -31,7 +31,6 @@ var player = {
 
       // Set video src to given file
       let videoPath = files['videoFile']['path']
-      console.log(files)
       player.video_obj.src = videoPath
 
 

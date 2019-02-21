@@ -9,7 +9,6 @@ const Events = (function() {
 
     function addListener(element, eventname, callback) {
         if (exists(element, eventname)) {
-            console.log(`Event ${name} already exists.`)
             return false
         }
         element.addEventListener(eventname, callback)
@@ -19,7 +18,6 @@ const Events = (function() {
 
     function removeListener(element, eventname, callback) {
         if (!exists(element, eventname)) {
-            console.log(`Attempted to remove non-existent listener`)
             return false
         }
         const isMatch = matcher(element, eventname)
