@@ -31,6 +31,7 @@ var player = {
 
       // Set video src to given file
       let videoPath = files['videoFile']['path']
+      console.log(files)
       player.video_obj.src = videoPath
 
 
@@ -115,9 +116,10 @@ var player = {
         icfFileExists = true
         icfFile = fileList[i]
       }
-      else if (ext === "mp4" || ext === "m4v")  /*TODO: Add all supported file types*/
+      else if (ext === "mp4" || ext === "m4v") {  /*TODO: Add all supported file types*/
         videoFileExists = true
         videoFile = fileList[i]
+      }
     }
 
     // if all the necessary files are included, return the fileList; else return FALSE
