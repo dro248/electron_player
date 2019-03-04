@@ -64,7 +64,7 @@ var player = {
         }
       }
 
-      player.video_obj.addEventListener("loadedmetadata", ()=> {
+      Events.addListener(player.video_obj, "loadedmetadata", ()=> {
         // Draw box initially
         player.draw_box()
       })
@@ -115,9 +115,10 @@ var player = {
         icfFileExists = true
         icfFile = fileList[i]
       }
-      else if (ext === "mp4" || ext === "m4v")  /*TODO: Add all supported file types*/
+      else if (ext === "mp4" || ext === "m4v") {  /*TODO: Add all supported file types*/
         videoFileExists = true
         videoFile = fileList[i]
+      }
     }
 
     // if all the necessary files are included, return the fileList; else return FALSE
@@ -211,7 +212,7 @@ var player = {
   annotate: () => {
     console.log("in the annotate function")
     var currently = {'muting': -1, 'blanking': -1, 'blurring': -1}
-    player.video_obj.addEventListener("playing", (event) => {
+    Events.addListener(player.video_obj, "playing", (event) => {
       onFrameAdv()
       function onFrameAdv() {
         if (player.video_obj.paused) {
@@ -388,6 +389,6 @@ var player = {
 
 }
 
-window.addEventListener("resize", () => {
+Events.addListener(window, "resize", () => {
   player.draw_box()
 })
