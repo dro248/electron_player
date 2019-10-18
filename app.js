@@ -30,3 +30,8 @@ app.on('ready', createWindow)
 ipcMain.on('request-cmd-argv', (event, arg) => {
   event.reply('response-cmd-argv', argv)
 })
+
+ipcMain.on('toggle-dev-tools', (event, arg) => {
+  //if(mainWindow.webContents.isDevToolsOpened())
+  mainWindow.webContents.toggleDevTools()
+})

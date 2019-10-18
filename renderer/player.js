@@ -21,6 +21,13 @@ module.exports = {
       }
     },
 
+    toggleAnnotationMode: () => {
+      annotationMode = !annotationMode
+      console.log(annotationMode)
+      document.getElementById('toggleAnnotationModeBtn').classList.toggle('active')
+      toggleDevTools()
+    },
+
     start_player: () => {
       const files = player.get_selected_files()
 
@@ -254,9 +261,13 @@ module.exports = {
       playerContainer.style.visibility = "visible"
 
       // Show Reload JSON button
-      if(!annotateMode) {
+      if(!annotationMode) {
         let reloadJsonBtn = document.getElementById('reloadJsonBtn')
         reloadJsonBtn.style.visibility = "hidden"
+      }
+      else {
+        let reloadJsonBtn = document.getElementById('reloadJsonBtn')
+        reloadJsonBtn.style.visibility = "visible"
       }
 
       // Hide Splash Screen
@@ -395,7 +406,7 @@ module.exports = {
                     } else if (aDetails['type'] == 'blur') {
                       censor.style['backdrop-filter'] = 'blur(' + aDetails['amount'] + ')'
                     }
-                    if(annotateMode) {
+                    if(annotationMode) {
                       censor.classList.add('censor-annotate')
                       /*Events.addListener(censor, 'click', () => {
                         console.log(this)
@@ -496,7 +507,7 @@ module.exports = {
           backdrop-filter: blur(10px);
         }
         video.blurred::-webkit-media-text-track-container {
-          z-index: 23;
+          z-index: 1;
         }`
       document.body.appendChild(style)
     },
