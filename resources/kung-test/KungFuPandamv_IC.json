@@ -25,6 +25,14 @@
   },
   {
     "options": {
+      "start": "2",
+      "end": "10",
+      "type": "blur",
+      "details": {}
+    }
+  },
+  {
+    "options": {
       "start": "52",
       "end": "55",
       "type": "mute",

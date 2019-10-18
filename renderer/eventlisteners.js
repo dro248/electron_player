@@ -21,10 +21,11 @@ const Events = (function() {
             return false
         }
         const isMatch = matcher(element, eventname)
-        for (let [i, l] of listeners) {
-            if (isMatch(l)) {
+
+        for (var i; i < listeners.length; i++) {
+            if (isMatch(listeners[i])) {
                 console.log(listeners[i])
-                l.element.removeEventListener(l.eventname, l.callback)
+                listeners[i].element.removeEventListener(listeners[i].eventname, listeners[i].callback)
                 listeners.splice(i, 1)
                 return true
             }

@@ -59,17 +59,28 @@ module.exports = {
       console.log("Reloading JSON")
       player.current_time = player.video_obj.currentTime
       player.paused = player.video_obj.paused
-      fs.readFile(player.json_file_path, (err, fileData) => {
-        if(err) {
-          return err;
-        }
-        // Reset current annotations
-        Array.prototype.forEach.call(document.getElementsByClassName('censor'), (element) => {
-            element.parentNode.removeChild(element);
-        })
-        player.unmute()
-        player.initialise_callback(fileData)
+
+      Events.removeListener(player.video_obj, "playing", (event) => {
+        return
       })
+
+      if(player.video_obj.classList.contains('blanked')) {
+        player.unblank()
+      }
+      if(player.video_obj.classList.contains('blurred')) {
+        player.unblur()
+      }
+      for(var i = 0; i < player.annotations.length; i++) {
+        if(player.annotations[i].type == 'censor') {
+          var censor = document.getElementById('censor' + i)
+          if(censor) {
+            censor.parentNode.removeChild(censor)
+          }
+        }
+      }
+      player.unmute()
+      var fileData = fs.readFileSync(player.json_file_path)
+      player.initialise_callback(fileData)
     },
 
     get_selected_files: () => {
@@ -95,6 +106,45 @@ module.exports = {
           videoFileExists = true
           videoFile = fileList[i]
         }
+      }
+
+      if(icfFileExists && (!jsonFileExists || !videoFileExists)) {
+        //{"subtitle": null, "video": "KungFuPandamv_IC.m4v", "annotation": "KungFuPandamv_IC.json"}
+        /*fs.readFile(icfFile['path'], (err, fileData) => {
+          if(err) {
+            return err;
+          }
+          var jsonObj = JSON.parse(fileData)
+          console.log(jsonObj)
+          var jsonPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ jsonObj['annotation'])
+          var videoPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ jsonObj['video'])
+
+          fs.readFile(jsonPath, (err, fileData) => {
+            if(err) {
+              return err;
+            }
+            jsonFile = new File(fileData, jsonPath)
+            jsonFileExists = true
+          })
+          fs.readFile(videoPath, (err, fileData) => {
+            if(err) {
+              return err;
+            }
+            videoFile = new File(fileData, jsonPath)
+            videoFileExists = true
+          })
+        })*/
+        const icfData = fs.readFileSync(icfFile['path'])
+        const icfObj = JSON.parse(icfData)
+        console.log(icfObj)
+        const jsonPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ icfObj['annotation'])
+        const videoPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ icfObj['video'])
+        const jsonData = fs.readFileSync(jsonPath)
+        jsonFile = new File(jsonData, jsonPath)
+        //jsonFileExists = true
+        const videoData = fs.readFileSync(videoPath)
+        videoFile = new File(videoData, jsonPath)
+        //videoFileExists = true
       }
 
       // if all the necessary files are included, return the fileList; else return FALSE
@@ -253,7 +303,6 @@ module.exports = {
           if (player.video_obj.paused) {
             return
           }
-
           var time = player.video_obj.currentTime
 
           var numAnnotations = player.annotations.length
@@ -311,7 +360,7 @@ module.exports = {
                 }
                 break
               case 'blur':
-                if (!currently.blurring || currently.blurring === i) {
+                if (currently.blurring == -1 || currently.blurring === i) {
                   if (time >= aStart && time < aEnd) {
                     if (!vBlurred) {
                       console.log('blur on')
@@ -447,7 +496,7 @@ module.exports = {
           backdrop-filter: blur(10px);
         }
         video.blurred::-webkit-media-text-track-container {
-          z-index: 2147483647;
+          z-index: 23;
         }`
       document.body.appendChild(style)
     },
