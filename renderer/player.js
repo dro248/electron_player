@@ -409,12 +409,41 @@ module.exports = {
                     } else if (aDetails['type'] == 'blur') {
                       censor.style['backdrop-filter'] = 'blur(' + aDetails['amount'] + ')'
                     }
-                    
+
                     document.getElementById('box').appendChild(censor)
 
                     if(annotationMode) {
                       censor.classList.add('censor-annotate')
-                      $('#' + censor.id).resizable().draggable()
+
+                      var jqCensor = $('#' + censor.id)
+                      var tooltipContent = jqCensor.width() + 'x' + jqCensor.height()
+                      jqCensor.tooltip({
+                        content: tooltipContent,
+                        items: `#` + censor.id
+                      })
+
+                      // TODO: Update aDetails and JSON file
+                      // annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
+                      // aDetails['position'][annoTime]['width'] = ui.size.width
+                      // maybe have a button like Reload JSON filters, "Save JSON filters"
+                      // maybe update the new position for the next 3 - 5 seconds
+
+                      jqCensor.resizable({
+                        stop: function(e, ui) {
+                          jqCensor.tooltip({
+                            content: ui.size.width + 'x' + ui.size.height,
+                            items: `#` + censor.id
+                          })
+                        }
+                      })
+
+                      jqCensor.draggable({
+                        stop: function(e, ui) {
+                          //ui.offset.top
+                          //ui.offset.left
+                        }
+                      })
+
                       /*Events.addListener(censor, 'click', () => {
                         console.log(this)
                         censor.style['background'] = `#4c88ff`
