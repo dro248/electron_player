@@ -20,9 +20,9 @@ function createWindow () {
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/renderer/player.html')
 
-  if(argv[2] == 'annotate' || argv[2] == 'a' || argv[2] == '-a') {
+  /*if(argv[2] == 'annotate' || argv[2] == 'a' || argv[2] == '-a') {
     mainWindow.webContents.openDevTools()
-  }
+  }*/
 }
 
 app.on('ready', createWindow)

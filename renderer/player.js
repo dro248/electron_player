@@ -32,7 +32,7 @@ module.exports = {
       const files = player.get_selected_files()
 
       if (!files){
-        alert("Error: The selected folder does not contain an *.icf file. Please try again.")
+        alert('Error: The selected folder does not contain an *.icf file. Please try again.')
         return
       }
 
@@ -43,15 +43,22 @@ module.exports = {
     hide_player: () => {
       // Show Splash Screen
       let splashScreen = document.getElementById('splashScreen')
-      splashScreen.style.visibility = "visible"
+      splashScreen.style.visibility = 'visible'
 
       // Hide Player
       let playerContainer = document.getElementById('playerContainer')
-      playerContainer.style.visibility = "hidden"
+      playerContainer.style.visibility = 'hidden'
       document.getElementById('playButton').classList.remove('ready')
+
+      // Hide Reload JSON Button if visible
+      let reloadJsonBtn = document.getElementById('reloadJsonBtn')
+      reloadJsonBtn.style.visibility = 'hidden'
 
       // Pause the video
       player.video_obj.pause()
+
+      // Hide the Reload JSON button if it is visible
+      document.getElementById('reloadJsonBtn').style.visibility = 'hidden'
 
       // Set background to normal
       document.body.style.background = 'linear-gradient(to right, #1e425e, #839aa8, #1e425e)'
@@ -59,15 +66,15 @@ module.exports = {
       //Clear selected files
       document.getElementById('filePicker').value = ''
       console.log(document.getElementById('filePicker').files)
-      document.getElementById('files').innerHTML = "Select Files"
+      document.getElementById('files').innerHTML = 'Select Files'
     },
 
     reload_json: () => {
-      console.log("Reloading JSON")
+      console.log('Reloading JSON')
       player.current_time = player.video_obj.currentTime
       player.paused = player.video_obj.paused
 
-      Events.removeListener(player.video_obj, "playing", (event) => {
+      Events.removeListener(player.video_obj, 'playing', (event) => {
         return
       })
 
@@ -100,23 +107,23 @@ module.exports = {
           videoFileExists = false
 
       for(var i=0; i < fileList.length; i++){
-        var ext = fileList[i]["name"].split(".")[1]
-        if (ext === "json"){
+        var ext = fileList[i]['name'].split('.')[1]
+        if (ext === 'json'){
           jsonFileExists = true
           jsonFile = fileList[i]
         }
-        else if (ext === "icf"){
+        else if (ext === 'icf'){
           icfFileExists = true
           icfFile = fileList[i]
         }
-        else if (ext === "mp4" || ext === "m4v") {  /*TODO: Add all supported file types*/
+        else if (ext === 'mp4' || ext === 'm4v') {  /*TODO: Add all supported file types*/
           videoFileExists = true
           videoFile = fileList[i]
         }
       }
 
       if(icfFileExists && (!jsonFileExists || !videoFileExists)) {
-        //{"subtitle": null, "video": "KungFuPandamv_IC.m4v", "annotation": "KungFuPandamv_IC.json"}
+        //{'subtitle': null, 'video': 'KungFuPandamv_IC.m4v', 'annotation': 'KungFuPandamv_IC.json'}
         /*fs.readFile(icfFile['path'], (err, fileData) => {
           if(err) {
             return err;
@@ -220,26 +227,26 @@ module.exports = {
     },
 
     initialise_callback: (fileData) => {
-      console.log("initialising")
+      console.log('initialising')
       player.annotations = []
       var jsonObj = JSON.parse(fileData)
-      if (jsonObj["media"]) {
-        var jsonGuts = jsonObj["media"][0]["tracks"][0]["trackEvents"]
+      if (jsonObj['media']) {
+        var jsonGuts = jsonObj['media'][0]['tracks'][0]['trackEvents']
       } else {
         var jsonGuts = jsonObj
       }
       for (var i = 0; i < jsonGuts.length; i++) {
-        if (jsonObj["media"]) {
-          var annotation = {"start": jsonGuts[i].popcornOptions['start'],
-                            "end": jsonGuts[i].popcornOptions['end'],
-                            "details": jsonGuts[i].popcornOptions['details'],
-                            "type": jsonGuts[i]['type']
+        if (jsonObj['media']) {
+          var annotation = {'start': jsonGuts[i].popcornOptions['start'],
+                            'end': jsonGuts[i].popcornOptions['end'],
+                            'details': jsonGuts[i].popcornOptions['details'],
+                            'type': jsonGuts[i]['type']
                            }
         } else {
-          var annotation = {"start": jsonGuts[i].options['start'],
-                            "end": jsonGuts[i].options['end'],
-                            "type": jsonGuts[i].options['type'],
-                            "details": jsonGuts[i].options['details']
+          var annotation = {'start': jsonGuts[i].options['start'],
+                            'end': jsonGuts[i].options['end'],
+                            'type': jsonGuts[i].options['type'],
+                            'details': jsonGuts[i].options['details']
                            }
         }
         player.annotations.push(annotation)
@@ -248,7 +255,7 @@ module.exports = {
 
       // Hide Splash Screen
       let splashScreen = document.getElementById('splashScreen')
-      splashScreen.style.visibility = "hidden"
+      splashScreen.style.visibility = 'hidden'
 
       const files = player.get_selected_files()
 
@@ -258,21 +265,17 @@ module.exports = {
 
       // Show Player
       let playerContainer = document.getElementById('playerContainer')
-      playerContainer.style.visibility = "visible"
+      playerContainer.style.visibility = 'visible'
 
       // Show Reload JSON button
-      if(!annotationMode) {
+      if(annotationMode) {
         let reloadJsonBtn = document.getElementById('reloadJsonBtn')
-        reloadJsonBtn.style.visibility = "hidden"
-      }
-      else {
-        let reloadJsonBtn = document.getElementById('reloadJsonBtn')
-        reloadJsonBtn.style.visibility = "visible"
+        reloadJsonBtn.style.visibility = 'visible'
       }
 
       // Hide Splash Screen
       let splashScreenContainer = document.getElementById('splashScreen')
-      splashScreenContainer.style.visibility = "hidden"
+      splashScreenContainer.style.visibility = 'hidden'
 
       // Set background to black
       document.body.style.background = 'black'
@@ -298,7 +301,7 @@ module.exports = {
         }
       }
 
-      Events.addListener(player.video_obj, "loadedmetadata", ()=> {
+      Events.addListener(player.video_obj, 'loadedmetadata', ()=> {
         // Draw box initially
         player.draw_box()
         player.video_obj.currentTime = player.current_time
@@ -306,9 +309,9 @@ module.exports = {
     },
 
     annotate: () => {
-      console.log("in the annotate function")
+      console.log('in the annotate function')
       var currently = {'muting': -1, 'blanking': -1, 'blurring': -1}
-      Events.addListener(player.video_obj, "playing", (event) => {
+      Events.addListener(player.video_obj, 'playing', (event) => {
         onFrameAdv()
         function onFrameAdv() {
           if (player.video_obj.paused) {
@@ -390,7 +393,7 @@ module.exports = {
               case 'censor':
                 if (time >= aStart && time < aEnd) {
                   if (!document.getElementById('censor'+i)) {
-                    console.log("censor on")
+                    console.log('censor on')
                     var censor = document.createElement('div')
                     censor.id = 'censor' + i
                     censor.classList.add('censor')
@@ -406,8 +409,12 @@ module.exports = {
                     } else if (aDetails['type'] == 'blur') {
                       censor.style['backdrop-filter'] = 'blur(' + aDetails['amount'] + ')'
                     }
+                    
+                    document.getElementById('box').appendChild(censor)
+
                     if(annotationMode) {
                       censor.classList.add('censor-annotate')
+                      $('#' + censor.id).resizable().draggable()
                       /*Events.addListener(censor, 'click', () => {
                         console.log(this)
                         censor.style['background'] = `#4c88ff`
@@ -445,7 +452,6 @@ module.exports = {
                         document.onkeydown = checkKey;
                       })*/
                     }
-                    document.getElementById('box').appendChild(censor)
                   } else {
                     for (var j = 0; j < player.censors.length; j++) {
                       annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
@@ -459,7 +465,7 @@ module.exports = {
                   }
                 } else {
                   if (document.getElementById('censor'+i)) {
-                    console.log("censor off")
+                    console.log('censor off')
                     document.getElementById('censor'+i).outerHTML = ''
                   }
                 }
