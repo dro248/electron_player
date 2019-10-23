@@ -54,6 +54,13 @@ module.exports = {
       let reloadJsonBtn = document.getElementById('reloadJsonBtn')
       reloadJsonBtn.style.visibility = 'hidden'
 
+
+      /*var jsonAnnotations = JSON.stringify(player.annotations);
+      var callback = () => {
+        print('Wrote JSON')
+      }
+      fs.writeFile(player.json_file_path, jsonAnnotations, 'utf8', callback);
+      */
       // Pause the video
       player.video_obj.pause()
 
@@ -414,7 +421,7 @@ module.exports = {
 
                     if(annotationMode) {
                       censor.classList.add('censor-annotate')
-
+                      var index = censor.id.replace('censor','')
                       var jqCensor = $('#' + censor.id)
                       var tooltipContent = jqCensor.width() + 'x' + jqCensor.height()
                       jqCensor.tooltip({
@@ -434,13 +441,33 @@ module.exports = {
                             content: ui.size.width + 'x' + ui.size.height,
                             items: `#` + censor.id
                           })
+
+                          annoTime = Object.keys(player.annotations[index].details.position)
+                              .reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
+                          if (player.annotations[index].details.position[annoTime][2]
+                                && player.annotations[index].details.position[annoTime][3]) {
+                            player.annotations[index].details.position[annoTime][2]
+                                = Math.round(100 * ui.size.width / ui.element.offsetParent().width())
+                            player.annotations[index].details.position[annoTime][3]
+                                = Math.round(100 * ui.size.height / ui.element.offsetParent().height())
+                          }
+                          else {
+                            player.annotations[index].details.position[annoTime].push(ui.size.width, ui.size.height)
+                          }
+                          console.log(player.annotations[index].details.position[annoTime])
                         }
                       })
 
                       jqCensor.draggable({
                         stop: function(e, ui) {
-                          //ui.offset.top
-                          //ui.offset.left
+                          annoTime = Object.keys(player.annotations[index].details.position)
+                              .reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
+
+                          // TODO: I'm not sure if this works yet, maybe it should just be ui.offset.left
+                          player.annotations[index].details.position[annoTime][0]
+                              = Math.round(100 * ui.offset.left / ui.helper[0].parentElement.clientWidth)
+                          player.annotations[index].details.position[annoTime][1]
+                              = Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight)
                         }
                       })
 
