@@ -23,7 +23,6 @@ module.exports = {
 
     toggleAnnotationMode: () => {
       annotationMode = !annotationMode
-      console.log(annotationMode)
       document.getElementById('toggleAnnotationModeBtn').classList.toggle('active')
       toggleDevTools()
     },
@@ -54,13 +53,20 @@ module.exports = {
       let reloadJsonBtn = document.getElementById('reloadJsonBtn')
       reloadJsonBtn.style.visibility = 'hidden'
 
+      // Remove inkeyup listener
+      document.onkeyup = null
 
-      /*var jsonAnnotations = JSON.stringify(player.annotations);
-      var callback = () => {
-        print('Wrote JSON')
+      // TODO: Save changes to JSON annotations if there were any
+      /*
+      if(annotationMode) {
+        var jsonAnnotations = JSON.stringify(player.annotations);
+        var callback = () => {
+          print('Wrote JSON')
+        }
+        fs.writeFile(player.json_file_path, jsonAnnotations, 'utf8', callback);
       }
-      fs.writeFile(player.json_file_path, jsonAnnotations, 'utf8', callback);
       */
+
       // Pause the video
       player.video_obj.pause()
 
@@ -274,11 +280,9 @@ module.exports = {
       let playerContainer = document.getElementById('playerContainer')
       playerContainer.style.visibility = 'visible'
 
-      // Show Reload JSON button
-      if(annotationMode) {
-        let reloadJsonBtn = document.getElementById('reloadJsonBtn')
-        reloadJsonBtn.style.visibility = 'visible'
-      }
+      // Show Reload JSON button if annotationMode = true
+      let reloadJsonBtn = document.getElementById('reloadJsonBtn')
+      reloadJsonBtn.style.visibility = annotationMode ? 'visible' : 'hidden'
 
       // Hide Splash Screen
       let splashScreenContainer = document.getElementById('splashScreen')
@@ -313,6 +317,46 @@ module.exports = {
         player.draw_box()
         player.video_obj.currentTime = player.current_time
       })
+
+      // Add listener to hide controls at the end of video
+      Events.addListener(player.video_obj, 'ended', () => {
+        player.video_obj.controls = false
+      });
+
+      //Add listener to reveal controls as end of video on mousemove
+      Events.addListener(player.video_obj, 'mousemove', () => {
+        player.video_obj.controls = true
+      });
+
+      document.onkeyup = function (e) {
+        e = e || window.event;
+        // Space
+        if (e.keyCode == 32) {
+          player.video_obj.paused ? player.video_obj.play() : player.video_obj.pause()
+        }
+        // Right arrow
+        else if (e.keyCode == 39) {
+          if(player.video_obj.paused) {
+            // TODO: How far is one frame? 0.1 seconds?
+            player.skip_to(player.video_obj.currentTime + 0.1)
+          }
+          else {
+            player.skip_to(player.video_obj.currentTime + 5)
+          }
+        }
+        // Left arrow
+        else if (e.keyCode == 37) {
+          // TODO: When moving backward, if we come to a skip in the annotations
+          // we can't move back any further if the skip is longer than the step (0.1 or 5)
+          if(player.video_obj.paused) {
+            // TODO: How far is one frame? 0.1 seconds?
+            player.skip_to(player.video_obj.currentTime - 0.1)
+          }
+          else {
+            player.skip_to(player.video_obj.currentTime - 5)
+          }
+        }
+      };
     },
 
     annotate: () => {
@@ -470,43 +514,6 @@ module.exports = {
                               = Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight)
                         }
                       })
-
-                      /*Events.addListener(censor, 'click', () => {
-                        console.log(this)
-                        censor.style['background'] = `#4c88ff`
-                        censor.style['opacity'] = `0.50`
-                        censor.style['resize'] = 'both'
-
-                        const checkKey = (e) => {
-                          e = e || window.event;
-                          if (e.keyCode == '38') {
-                            // Up arrow
-                            censor.style['height'] = censor.style['height'] + censor.style['height'] * .005
-                            censor.style['top'] = censor.style['top'] - censor.style['height'] * .005
-                          }
-                          else if (e.keyCode == '40') {
-                            // Down arrow
-                            censor.style['height'] = censor.style['height'] + censor.style['height'] * .005
-                          }
-                          else if (e.keyCode == '37') {
-                            // Left arrow
-                            censor.style['width'] = censor.style['width'] + censor.style['width'] * .005
-                            censor.style['left'] = censor.style['left'] - censor.style['width'] * .005
-                          }
-                          else if (e.keyCode == '39') {
-                            // Right arrow
-                            censor.style['width'] = censor.style['width'] + censor.style['width'] * .005
-                          }
-                          else if(e.keyCode == '13') {
-                            // Enter key
-                            var position = `[` + censor.style['left'] + `,` + censor.style['top'] +
-                              `,` + censor.style['width'] + `,` + censor.style['height'] + `]`
-                            console.log(position)
-                            document.onkeydown = null;
-                          }
-                        }
-                        document.onkeydown = checkKey;
-                      })*/
                     }
                   } else {
                     for (var j = 0; j < player.censors.length; j++) {

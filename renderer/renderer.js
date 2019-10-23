@@ -8,11 +8,6 @@ Events.addListener(window, 'resize', () => {
   player.draw_box()
 })
 
-// TODO: Add listener for when window is ready to click filePicker
-/*Events.addListener(window, 'DOMContentLoaded', () => {
-  document.getElementById('filePicker').click()
-})*/
-
 const toggleDevTools = () => {
   ipcRenderer.send('toggle-dev-tools', 'request')
 }
