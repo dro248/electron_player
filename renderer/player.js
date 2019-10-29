@@ -91,21 +91,8 @@ module.exports = {
         return
       })
 
-      if(player.video_obj.classList.contains('blanked')) {
-        player.unblank()
-      }
-      if(player.video_obj.classList.contains('blurred')) {
-        player.unblur()
-      }
-      for(var i = 0; i < player.annotations.length; i++) {
-        if(player.annotations[i].type == 'censor') {
-          var censor = document.getElementById('censor' + i)
-          if(censor) {
-            censor.parentNode.removeChild(censor)
-          }
-        }
-      }
-      player.unmute()
+      player.resetAnnotations()
+
       var fileData = fs.readFileSync(player.json_file_path)
       player.initialise_callback(fileData)
     },
@@ -136,42 +123,21 @@ module.exports = {
       }
 
       if(icfFileExists && (!jsonFileExists || !videoFileExists)) {
-        //{'subtitle': null, 'video': 'KungFuPandamv_IC.m4v', 'annotation': 'KungFuPandamv_IC.json'}
-        /*fs.readFile(icfFile['path'], (err, fileData) => {
-          if(err) {
-            return err;
-          }
-          var jsonObj = JSON.parse(fileData)
-          console.log(jsonObj)
-          var jsonPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ jsonObj['annotation'])
-          var videoPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ jsonObj['video'])
-
-          fs.readFile(jsonPath, (err, fileData) => {
-            if(err) {
-              return err;
-            }
-            jsonFile = new File(fileData, jsonPath)
-            jsonFileExists = true
-          })
-          fs.readFile(videoPath, (err, fileData) => {
-            if(err) {
-              return err;
-            }
-            videoFile = new File(fileData, jsonPath)
-            videoFileExists = true
-          })
-        })*/
         const icfData = fs.readFileSync(icfFile['path'])
         const icfObj = JSON.parse(icfData)
-        console.log(icfObj)
+
         const jsonPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ icfObj['annotation'])
         const videoPath = icfFile['path'].replace(/\/[^\/]*$/, '/'+ icfObj['video'])
-        const jsonData = fs.readFileSync(jsonPath)
-        jsonFile = new File(jsonData, jsonPath)
-        //jsonFileExists = true
-        const videoData = fs.readFileSync(videoPath)
-        videoFile = new File(videoData, jsonPath)
-        //videoFileExists = true
+
+        jsonFileExists = true
+        jsonFile = {
+          path: jsonPath
+        }
+        videoFileExists = true
+        videoFile = {
+          path: videoPath,
+          name: icfObj['video']
+        }
       }
 
       // if all the necessary files are included, return the fileList; else return FALSE
@@ -321,42 +287,72 @@ module.exports = {
       // Add listener to hide controls at the end of video
       Events.addListener(player.video_obj, 'ended', () => {
         player.video_obj.controls = false
-      });
+      })
 
       //Add listener to reveal controls as end of video on mousemove
       Events.addListener(player.video_obj, 'mousemove', () => {
         player.video_obj.controls = true
-      });
+      })
 
-      document.onkeyup = function (e) {
-        e = e || window.event;
+      /*Events.addListener(player.video_obj, 'seeking', () => {
+        console.log('seeking: ' + player.video_obj.currentTime)
+      })
+
+      Events.addListener(player.video_obj, 'seeked', () => {
+        console.log('seeked: '+ player.video_obj.currentTime)
+      })
+
+      Events.addListener(player.video_obj, 'timeupdate', () => {
+        console.log('timeupdate: ' + player.video_obj.currentTime)
+      })
+
+      document.onkeydown = function (e) {
+        e.preventDefault()
+        e = e || window.event
         // Space
         if (e.keyCode == 32) {
-          player.video_obj.paused ? player.video_obj.play() : player.video_obj.pause()
+          console.log('Space pressed')
+          //player.video_obj.paused ? player.play() : player.pause()
+          player.current_time = player.video_obj.currentTime
         }
         // Right arrow
         else if (e.keyCode == 39) {
           if(player.video_obj.paused) {
-            // TODO: How far is one frame? 0.1 seconds?
-            player.skip_to(player.video_obj.currentTime + 0.1)
+            console.log('A: ' + player.video_obj.currentTime)
+            if(player.current_time + 0.1 < player.video_obj.currentTime) {
+              player.skip_to(player.current_time + 0.1)
+              player.current_time = player.current_time + 0.1
+            }
+            console.log('B: ' + player.video_obj.currentTime)
           }
           else {
+            console.log('C: ' + player.video_obj.currentTime)
             player.skip_to(player.video_obj.currentTime + 5)
+            console.log('D: ' + player.video_obj.currentTime)
           }
         }
         // Left arrow
         else if (e.keyCode == 37) {
           // TODO: When moving backward, if we come to a skip in the annotations
           // we can't move back any further if the skip is longer than the step (0.1 or 5)
+          // Check for skip and go 5 seconds before skip!
+          // skips more than .1 of second ???????????????????
+          // It's a default, I think, but I can't find anything on it
+
+          // Hiding the controls works. player.video_obj.controls = false
+          // All of these events work. But there are no controls... :(
+
           if(player.video_obj.paused) {
-            // TODO: How far is one frame? 0.1 seconds?
-            player.skip_to(player.video_obj.currentTime - 0.1)
+            if(player.current_time - 0.1 > player.video_obj.currentTime) {
+              player.skip_to(player.current_time - 0.1)
+              player.current_time = player.current_time - 0.1
+            }
           }
           else {
             player.skip_to(player.video_obj.currentTime - 5)
           }
         }
-      };
+      }*/
     },
 
     annotate: () => {
@@ -365,6 +361,7 @@ module.exports = {
       Events.addListener(player.video_obj, 'playing', (event) => {
         onFrameAdv()
         function onFrameAdv() {
+          // TODO: Add button to update annotations when paused
           if (player.video_obj.paused) {
             return
           }
@@ -470,20 +467,20 @@ module.exports = {
                       var tooltipContent = jqCensor.width() + 'x' + jqCensor.height()
                       jqCensor.tooltip({
                         content: tooltipContent,
-                        items: `#` + censor.id
+                        items: '#' + censor.id
                       })
 
                       // TODO: Update aDetails and JSON file
                       // annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
                       // aDetails['position'][annoTime]['width'] = ui.size.width
                       // maybe have a button like Reload JSON filters, "Save JSON filters"
-                      // maybe update the new position for the next 3 - 5 seconds
 
                       jqCensor.resizable({
                         stop: function(e, ui) {
+                          console.log('resize: ' + player.video_obj.currentTime)
                           jqCensor.tooltip({
                             content: ui.size.width + 'x' + ui.size.height,
-                            items: `#` + censor.id
+                            items: '#' + censor.id
                           })
 
                           annoTime = Object.keys(player.annotations[index].details.position)
@@ -504,10 +501,26 @@ module.exports = {
 
                       jqCensor.draggable({
                         stop: function(e, ui) {
+                          console.log('draggable: ' + player.video_obj.currentTime)
                           annoTime = Object.keys(player.annotations[index].details.position)
                               .reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
 
                           // TODO: I'm not sure if this works yet, maybe it should just be ui.offset.left
+                          // I think that the annoTime only returns the start time, because it saves the
+                          // variable 'time' from the original run through of this function, we need to
+                          // know what the current time is: maybe player.video_obj.currentTime would be more accurate
+                          // Make sure to do it for both draggable and resizable
+
+                          /*console.log(annoTime)
+                          console.log(player.annotations)
+                          console.log('Left')
+                          console.log(ui.offset.left)
+                          console.log(ui.helper[0].parentElement.clientWidth)
+                          console.log(Math.round(100 * ui.offset.left / ui.helper[0].parentElement.clientWidth))
+                          console.log('Top')
+                          console.log(ui.offset.top)
+                          console.log(ui.helper[0].parentElement.clientHeight)
+                          console.log(Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight))*/
                           player.annotations[index].details.position[annoTime][0]
                               = Math.round(100 * ui.offset.left / ui.helper[0].parentElement.clientWidth)
                           player.annotations[index].details.position[annoTime][1]
@@ -516,6 +529,7 @@ module.exports = {
                       })
                     }
                   } else {
+                    // TODO: Why is this j, but in the code it doesn't reference j
                     for (var j = 0; j < player.censors.length; j++) {
                       annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
                       document.getElementById('censor'+i).style.left = aDetails['position'][annoTime][0]+'%'
@@ -542,11 +556,21 @@ module.exports = {
 
     // Annotation Handlers
 
-    play: () => { player.video_obj.play() },
+    play: () => {
+      console.log('Play: ' + player.video_obj.currentTime)
+      player.video_obj.play()
+    },
 
-    pause: () => { player.video_obj.pause() },
+    pause: () => {
+      console.log('Pause: ' + player.video_obj.currentTime)
+      player.video_obj.pause()
+    },
 
-    skip_to: (time) => { player.video_obj.currentTime = time },
+    skip_to: (time) => {
+      console.log('Skip: ' + player.video_obj.currentTime)
+      player.video_obj.currentTime = time
+      console.log('After skip: ' + player.video_obj.currentTime)
+    },
 
     blank: () => {
       player.video_obj.classList.add('blanked')
@@ -588,7 +612,25 @@ module.exports = {
 
     mute: () => { player.video_obj.muted =  true },
 
-    unmute: () => { player.video_obj.muted = false }
+    unmute: () => { player.video_obj.muted = false },
+
+    resetAnnotations: () => {
+      if(player.video_obj.classList.contains('blanked')) {
+        player.unblank()
+      }
+      if(player.video_obj.classList.contains('blurred')) {
+        player.unblur()
+      }
+      for(var i = 0; i < player.annotations.length; i++) {
+        if(player.annotations[i].type == 'censor') {
+          var censor = document.getElementById('censor' + i)
+          if(censor) {
+            censor.parentNode.removeChild(censor)
+          }
+        }
+      }
+      player.unmute()
+    }
 
   }
 }

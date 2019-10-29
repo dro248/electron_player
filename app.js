@@ -33,5 +33,8 @@ ipcMain.on('request-cmd-argv', (event, arg) => {
 
 ipcMain.on('toggle-dev-tools', (event, arg) => {
   //if(mainWindow.webContents.isDevToolsOpened())
+  // TODO: This doesn't always work. If the user manually closes the dev tools,
+  // it just toggles it like normal,
+  //so it could pop up once the user exits annotation mode
   mainWindow.webContents.toggleDevTools()
 })
