@@ -9,7 +9,7 @@ Events.addListener(window, 'resize', () => {
 })
 
 const toggleDevTools = () => {
-  ipcRenderer.send('toggle-dev-tools', 'request')
+  ipcRenderer.send('toggle-dev-tools', annotationMode)
 }
 
 ipcRenderer.on('response-cmd-argv', (event, argv) => {
