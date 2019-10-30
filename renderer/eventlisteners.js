@@ -24,7 +24,6 @@ const Events = (function() {
 
         for (var i; i < listeners.length; i++) {
             if (isMatch(listeners[i])) {
-                console.log(listeners[i])
                 listeners[i].element.removeEventListener(listeners[i].eventname, listeners[i].callback)
                 listeners.splice(i, 1)
                 return true

@@ -236,6 +236,35 @@ h1{
   border: 1px solid rgba(255,255,255, 0.2);
 }
 
+#issueBtn {
+  position: absolute;
+  top: 0;
+  left: 123px;
+  z-index: 3;
+  background-color: rgba(255,255,255, 0.2);
+  color: rgba(255,255,255,0.5);
+  border: 1px solid black;
+  outline: none;
+  padding: 15px;
+  font-size: 10px 15px;
+  transition: all .25s;
+}
+
+#issueBtn:hover {
+  color: rgba(255,255,255,1);
+  border: 1px solid grey;
+}
+
+#issueBtn:active {
+  color: rgba(255,255,255,0.5);
+  background-color: rgba(255,255,255, 0.2);
+  border: 1px solid rgba(255,255,255, 0.2);
+}
+
+#issueDialog {
+  visibility: hidden
+}
+
 #reloadJsonBtn {
   position: absolute;
   top: 0;

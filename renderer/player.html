@@ -27,13 +27,17 @@
     </div>
     <br>
     <div id='filePickerDiv' style="display:none;">
-      Select Video Files: <input type="file" id="filePicker" multiple>
+      Select Video Files: <input type="file" id="filePicker" accept=".icf" multiple>
     </div>
     <button id="toggleAnnotationModeBtn" onclick="player.toggleAnnotationMode()">Annotation Mode</button>
   </div>
 
   <div id='playerContainer'>
     <button id='returnBtn' onclick='player.hide_player()'>&#10094;&nbsp;Return to Menu</button>
+    <button id='issueBtn' onclick='player.report_issue()'>Report an Issue</button>
+    <div id="issueDialog" title="Report an Issue">
+      <p>You can report your issue on GitHub or by sending an email to: robert_reynolds@byu.edu</p>
+    </div>
     <button id='reloadJsonBtn' onclick='player.reload_json()'>Reload JSON Filters</button>
     <video id='player' width='1500' height='800' controls="true">
     </video>
