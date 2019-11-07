@@ -6,6 +6,7 @@ module.exports = {
     currently: null,
     json_file_path: null,
     current_time: 0, // The current time of the player
+    reloading_json: false,
     paused: false, // Is the player paused or playing
 
     button_press: () => {
@@ -36,6 +37,10 @@ module.exports = {
         return
       }
 
+      // With this, the player will start playing after someone
+      // returns to the menu and begins watching a video again
+      player.paused = false
+
       // Instantiate object variable 'annotations'
       player.parse_n_play(files['jsonFile'], player.initialise_callback)
     },
@@ -50,30 +55,18 @@ module.exports = {
       playerContainer.style.visibility = 'hidden'
       document.getElementById('playButton').classList.remove('ready')
 
-      // Hide Reload JSON Button if visible
+      // Hide Save and Reload JSON buttons if visible
       let reloadJsonBtn = document.getElementById('reloadJsonBtn')
       reloadJsonBtn.style.visibility = 'hidden'
+      let saveJsonBtn = document.getElementById('saveJsonBtn')
+      saveJsonBtn.style.visibility = 'hidden'
 
       // Remove inkeyup listener
       document.onkeyup = null
       document.onkeydown = null
 
-      // TODO: Save changes to JSON annotations if there were any
-      /*
-      if(annotationMode) {
-        var jsonAnnotations = JSON.stringify(player.annotations);
-        var callback = () => {
-          print('Wrote JSON')
-        }
-        fs.writeFile(player.json_file_path, jsonAnnotations, 'utf8', callback);
-      }
-      */
-
       // Pause the video
       player.pause()
-
-      // Hide the Reload JSON button if it is visible
-      document.getElementById('reloadJsonBtn').style.visibility = 'hidden'
 
       // Set background to normal
       document.body.style.background = 'linear-gradient(to right, #1e425e, #839aa8, #1e425e)'
@@ -89,11 +82,12 @@ module.exports = {
       player.currently = null
       player.json_file_path = null
       player.current_time = 0
-      player.paused = false
     },
 
     reload_json: () => {
       console.log('Reloading JSON')
+      player.reloading_json = true
+      let reload_json_time = player.video_obj.currentTime
       player.current_time = player.video_obj.currentTime
       player.paused = player.video_obj.paused
 
@@ -105,6 +99,43 @@ module.exports = {
 
       var fileData = fs.readFileSync(player.json_file_path)
       player.initialise_callback(fileData)
+      player.current_time = reload_json_time
+      player.video_obj.currentTime = reload_json_time
+      player.reloading_json = false
+    },
+
+    save_json: () => {
+      let formattedAnnotations = []
+      let intPositionObj = {}
+      for(i = 0; i < player.annotations.length; i++) {
+        let annotation = {
+          "options": {
+            "start": player.annotations[i].start,
+            "end": player.annotations[i].end,
+            "type": player.annotations[i].type,
+            "details": player.annotations[i].details
+          }
+        }
+        if(annotation.options.details.intPositions) {
+          let intPositions = annotation.options.details.intPositions
+          // Save deleted intPositions
+          intPositionObj[i] = intPositions
+          delete annotation.options.details.intPositions
+        }
+        formattedAnnotations.push(annotation)
+      }
+      let jsonAnnotations = JSON.stringify(formattedAnnotations, null, 2)
+
+      // Add saved intPositions to their respective censors
+      let intPositionKeys = Object.keys(intPositionObj)
+      for(let j = 0; j < intPositionKeys.length; j++) {
+        player.annotations[intPositionKeys[j]].details.intPositions = intPositionObj[intPositionKeys[j]]
+      }
+
+      fs.writeFile(player.json_file_path, jsonAnnotations, 'utf8', (err) => {
+        if(err) throw err
+        console.log('Wrote to JSON File')
+      })
     },
 
     get_selected_files: () => {
@@ -260,9 +291,11 @@ module.exports = {
       let playerContainer = document.getElementById('playerContainer')
       playerContainer.style.visibility = 'visible'
 
-      // Show Reload JSON button if annotationMode = true
+      // Show Save and Reload JSON buttons if annotationMode = true
       let reloadJsonBtn = document.getElementById('reloadJsonBtn')
       reloadJsonBtn.style.visibility = annotationMode ? 'visible' : 'hidden'
+      let saveJsonBtn = document.getElementById('saveJsonBtn')
+      saveJsonBtn.style.visibility = annotationMode ? 'visible' : 'hidden'
 
       // Hide Splash Screen
       let splashScreenContainer = document.getElementById('splashScreen')
@@ -374,7 +407,6 @@ module.exports = {
         if(player.annotations[i].type == 'censor') {
           var censor = document.getElementById('censor' + i)
           if(censor) {
-            // TODO: disable draggable and resizable listeners
             try{
               $('#censor'+i).draggable("disable");
               $('#censor'+i).resizable("disable");
@@ -469,16 +501,6 @@ module.exports = {
             annotation.details['intPositions'][tmid] = [xmid, ymid]
           }
         }
-
-        /*document.getElementById('censor'+i).style.left = (position[prevTime][0]+ incrLeft) + '%'
-        document.getElementById('censor'+i).style.top = (position[prevTime][1]+ incrTop) +'%'
-        if (incrWidth && incrHeight) {
-          document.getElementById('censor'+i).style.width = (position[prevTime][2]+ incrWidth) + '%'
-          document.getElementById('censor'+i).style.height = (position[prevTime][3]+ incrHeight) +'%'
-        }
-
-        /*a['options']['details']['position'] = {stringify(t): p for t, p
-                                               in sorted(tmp_pos_dict.items())}*/
       }
     },
 
@@ -502,20 +524,55 @@ module.exports = {
       Events.addListener(player.video_obj, 'seeked', () => {
         if(player.paused && player.current_time + 1.5 < player.video_obj.currentTime) {
           player.current_time = player.video_obj.currentTime
-          player.onFrameAdv()
+          if(!player.reloading_json) player.onFrameAdv()
         }
         else if (player.paused && player.current_time - 1.5 > player.video_obj.currentTime) {
           player.current_time = player.video_obj.currentTime
-          player.onFrameAdv()
+          if(!player.reloading_json) player.onFrameAdv()
         }
       })
 
       Events.addListener(player.video_obj, 'pause', () => {
         player.paused = true
+        if(player.annotations) {
+          for (var i = 0; i < player.annotations.length; i++) {
+            if (player.annotations[i].type == 'censor') {
+              let currentTime = player.current_time
+              let position = player.annotations[i].details.position
+              let annoTime = Object.keys(position)
+                  .reduce((prev, curr) => Math.abs(curr - currentTime) < Math.abs(prev - currentTime) ? curr : prev)
+
+              let width = null
+              let height = null
+              if(position[annoTime][2] && position[annoTime][3]) {
+                width = position[annoTime][2]
+                height = position[annoTime][3]
+              }
+              else {
+                width = Math.round(100 * $('#censor' + i).width() / $('#box').width())
+                height = Math.round(100 * $('#censor' + i).height() / $('#box').width())
+              }
+
+              let $censor = $('#censor' + i)
+              let tooltipContent = '[' + position[annoTime][0] + ',' + position[annoTime][1] +
+                                ',' + width + ',' + height +']'
+              $censor.tooltip({
+                content: tooltipContent,
+                items: '#censor' + i
+              })
+              $censor.tooltip('enable');
+            }
+          }
+        }
       })
 
       Events.addListener(player.video_obj, 'play', () => {
         player.paused = false
+        for (var i = 0; i < player.annotations.length; i++) {
+          if (player.annotations[i].type == 'censor') {
+            $('#censor' + i).tooltip('disable');
+          }
+        }
       })
 
       document.onkeyup = function (e) {
@@ -569,6 +626,7 @@ module.exports = {
     },
 
     onFrameAdv: () => {
+      if(!player.annotations) return
       var time = player.video_obj.currentTime
       player.current_time = player.video_obj.currentTime
 
@@ -586,7 +644,7 @@ module.exports = {
 
         switch (a['type']) {
           case 'skip':
-            if (time >= aStart && time < aEnd && !player.paused) { // TODO: I made it not skip if the player is paused, so edits could be made during that time
+            if (time >= aStart && time < aEnd && !player.paused) {
               console.log('skipped to '+Number(aEnd).toFixed(3))
               player.skip_to(aEnd)
             }
@@ -668,21 +726,16 @@ module.exports = {
                 if(annotationMode) {
                   censor.classList.add('censor-annotate')
                   var index = censor.id.replace('censor','')
-                  var jqCensor = $('#' + censor.id)
+                  var $censor = $('#' + censor.id)
                   var tooltipContent = '[' + aDetails['position'][aStart][0] + ',' + aDetails['position'][aStart][1] +
                                     ',' + aDetails['position'][aStart][2] + ',' + aDetails['position'][aStart][3] +']'
-                  jqCensor.tooltip({
+                  $censor.tooltip({
                     content: tooltipContent,
                     items: '#' + censor.id
                   })
+                  $censor.tooltip('disable');
 
-                  //TODO: The percentages in the json file are different than the ones that I create
-                  // let top = Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight)
-                  // player.annotations[index].details.position[annoTime][1] = top
-                  // as opposed to:
-                  // document.getElementById('censor'+i).style.top = aDetails['position'][annoTime][1]+'%'
-                  // find out what the percentage is of. I think that it's of the parent element, not the screen
-                  jqCensor.resizable({
+                  $censor.resizable({
                     stop: function(e, ui) {
                       let currentTime = player.current_time
                       let annoTime = Object.keys(player.annotations[index].details.position)
@@ -690,44 +743,46 @@ module.exports = {
 
                       let left = Math.round(100 * ui.position.left / ui.element[0].parentElement.clientWidth)
                       let top = Math.round(100 * ui.position.top / ui.element[0].parentElement.clientHeight)
-                      let newWidth = Math.round(100 * ui.size.width / ui.element[0].parentElement.clientWidth)
-                      let newHeight = Math.round(100 * ui.size.height / ui.element[0].parentElement.clientHeight)
+                      let width = Math.round(100 * ui.size.width / ui.element[0].parentElement.clientWidth)
+                      let height = Math.round(100 * ui.size.height / ui.element[0].parentElement.clientHeight)
 
-                      // TODO: Update intPositions as well
                       if (player.annotations[index].details.position[annoTime][2]
                                       && player.annotations[index].details.position[annoTime][3]) {
-                        player.annotations[index].details.position[annoTime][2] = newWidth
-                        player.annotations[index].details.position[annoTime][3] = newHeight
+                        player.annotations[index].details.position[annoTime][2] = width
+                        player.annotations[index].details.position[annoTime][3] = height
                       }
                       else {
-                        player.annotations[index].details.position[annoTime].push(newWidth, newHeight)
+                        player.annotations[index].details.position[annoTime].push(width, height)
                       }
 
-                      let jqCensor = $('#censor'+index)
-                      jqCensor.tooltip("option", "content", '[' + left + ',' + top+ ',' + newWidth + ',' + newHeight + ']');
-                      jqCensor.tooltip( "option", "items", '#censor'+index);
+                      let $censor = $('#censor'+index)
+                      $censor.tooltip("option", "content", '[' + left + ',' + top+ ',' + width + ',' + height + ']');
+                      $censor.tooltip( "option", "items", '#censor'+index);
+
+                      player.interpolateCensor(player.annotations[index])
                     }
                   })
 
-                  jqCensor.draggable({
+                  $censor.draggable({
                     stop: function(e, ui) {
                       let currentTime = player.current_time
                       let annoTime = Object.keys(player.annotations[index].details.position)
                           .reduce((prev, curr) => Math.abs(curr - currentTime) < Math.abs(prev - currentTime) ? curr : prev)
 
-                      let left = Math.round(100 * ui.offset.left / ui.helper[0].parentElement.clientWidth)
-                      let top = Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight)
-                      let newWidth = Math.round(100 * ui.helper[0].clientWidth / ui.helper[0].parentElement.clientWidth)
-                      let newHeight = Math.round(100 * ui.helper[0].clientHeight / ui.helper[0].parentElement.clientHeight)
+                      let $box = $('#box')
+                      let left = Math.round(100 * ui.position.left / $box.width())
+                      let top = Math.round(100 * ui.position.top / $box.height())
+                      let width = Math.round(100 * ui.helper[0].clientWidth / $box.width())
+                      let height = Math.round(100 * ui.helper[0].clientHeight / $box.height())
 
-                      // TODO: Update intPositions as well
                       player.annotations[index].details.position[annoTime][0] = left
                       player.annotations[index].details.position[annoTime][1] = top
 
-                      let jqCensor = $('#censor'+index)
-                      jqCensor.tooltip("option", "content", '[' + left + ',' + top+ ',' + newWidth + ',' + newHeight + ']');
-                      jqCensor.tooltip( "option", "items", '#censor'+index);
-                      console.log(player.annotations[index].details.position[annoTime])
+                      let $censor = $('#censor'+index)
+                      $censor.tooltip("option", "content", '[' + left + ',' + top+ ',' + width + ',' + height + ']');
+                      $censor.tooltip( "option", "items", '#censor'+index);
+
+                      player.interpolateCensor(player.annotations[index])
                     }
                   })
                 }
@@ -750,16 +805,6 @@ module.exports = {
                     document.getElementById('censor'+i).style.height = aDetails['position'][annoTime][3]+'%'
                   }
                 }
-
-                /*let jqCensor = $('#censor'+i)
-                let newWidth = Math.round(100 * jqCensor.width() / jqCensor[0].parentElement.clientWidth)
-                let newHeight = Math.round(100 * jqCensor.height() / jqCensor[0].parentElement.clientHeight)
-
-                var tooltipContent = '[' + aDetails['position'][annoTime][0] + ',' + aDetails['position'][annoTime][1] +
-                                  ',' + newWidth + ',' + newHeight +']'
-
-                jqCensor.tooltip("option", "content", tooltipContent)
-                jqCensor.tooltip("option", "items", '#censor'+i);*/
               }
             } else {
               if (document.getElementById('censor'+i)) {
