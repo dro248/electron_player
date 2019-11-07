@@ -693,6 +693,7 @@ module.exports = {
                       let newWidth = Math.round(100 * ui.size.width / ui.element[0].parentElement.clientWidth)
                       let newHeight = Math.round(100 * ui.size.height / ui.element[0].parentElement.clientHeight)
 
+                      // TODO: Update intPositions as well
                       if (player.annotations[index].details.position[annoTime][2]
                                       && player.annotations[index].details.position[annoTime][3]) {
                         player.annotations[index].details.position[annoTime][2] = newWidth
@@ -719,6 +720,7 @@ module.exports = {
                       let newWidth = Math.round(100 * ui.helper[0].clientWidth / ui.helper[0].parentElement.clientWidth)
                       let newHeight = Math.round(100 * ui.helper[0].clientHeight / ui.helper[0].parentElement.clientHeight)
 
+                      // TODO: Update intPositions as well
                       player.annotations[index].details.position[annoTime][0] = left
                       player.annotations[index].details.position[annoTime][1] = top
 
@@ -730,8 +732,8 @@ module.exports = {
                   })
                 }
               } else {
-                annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
                 if(a.details.interpolate) {
+                  annoTime = Object.keys(a.details.intPositions).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
                   document.getElementById('censor'+i).style.left = aDetails['intPositions'][annoTime][0]+'%'
                   document.getElementById('censor'+i).style.top = aDetails['intPositions'][annoTime][1]+'%'
                   if (aDetails['intPositions'][annoTime][2] && aDetails['intPositions'][annoTime][3]) {
@@ -740,6 +742,7 @@ module.exports = {
                   }
                 }
                 else {
+                  annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
                   document.getElementById('censor'+i).style.left = aDetails['position'][annoTime][0]+'%'
                   document.getElementById('censor'+i).style.top = aDetails['position'][annoTime][1]+'%'
                   if (aDetails['position'][annoTime][2] && aDetails['position'][annoTime][3]) {
