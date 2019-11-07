@@ -1,23 +1,24 @@
 
 module.exports = {
   player : {
+    // TODO: Make video_obj a JQuery object
     video_obj: document.getElementById('player'),
     annotations: null,
     currently: null,
     json_file_path: null,
     current_time: 0, // The current time of the player
-    reloading_json: false,
+    reloading_json: false, // Is JSON being reloaded
     paused: false, // Is the player paused or playing
 
     button_press: () => {
       const files = player.get_selected_files()
       if (!files){
-        document.getElementById('filePicker').click()
-        document.getElementById('filePicker').onchange = function() {
-          document.getElementById('files').innerHTML = player.get_selected_files().videoFile.name
-          document.getElementById('playButton').classList.add('ready')
-          document.getElementById('filePicker').onchange = null
-        }
+        $('#filePicker')[0].click()
+        $('#filePicker').change(() => {
+          $('#files').html(player.get_selected_files().videoFile.name)
+          $('#playButton').addClass('ready')
+          $('#filePicker').change(null)
+        })
       } else {
         player.start_player()
       }
@@ -25,7 +26,7 @@ module.exports = {
 
     toggleAnnotationMode: () => {
       annotationMode = !annotationMode
-      document.getElementById('toggleAnnotationModeBtn').classList.toggle('active')
+      $('#toggleAnnotationModeBtn').toggleClass('active')
       toggleDevTools()
     },
 
@@ -47,34 +48,33 @@ module.exports = {
 
     hide_player: () => {
       // Show Splash Screen
-      let splashScreen = document.getElementById('splashScreen')
-      splashScreen.style.visibility = 'visible'
+      $('#splashScreen').css('visibility', 'visible')
 
       // Hide Player
-      let playerContainer = document.getElementById('playerContainer')
-      playerContainer.style.visibility = 'hidden'
-      document.getElementById('playButton').classList.remove('ready')
+      $('#playerContainer').css('visibility', 'hidden')
+
+      // Remove 'ready' class from playButton
+      $('#playButton').removeClass('ready')
 
       // Hide Save and Reload JSON buttons if visible
-      let reloadJsonBtn = document.getElementById('reloadJsonBtn')
-      reloadJsonBtn.style.visibility = 'hidden'
-      let saveJsonBtn = document.getElementById('saveJsonBtn')
-      saveJsonBtn.style.visibility = 'hidden'
+      $('#reloadJsonBtn').css('visibility', 'hidden')
+      $('#saveJsonBtn').css('visibility', 'hidden')
 
       // Remove inkeyup listener
-      document.onkeyup = null
-      document.onkeydown = null
+      $(document).keyup(null)
+      $(document).keydown(null)
 
       // Pause the video
       player.pause()
 
       // Set background to normal
+      // TODO: Make this a JQuery object
       document.body.style.background = 'linear-gradient(to right, #1e425e, #839aa8, #1e425e)'
 
       //Clear selected files
-      document.getElementById('filePicker').value = ''
-      console.log(document.getElementById('filePicker').files)
-      document.getElementById('files').innerHTML = 'Select Files'
+      $('#filePicker').val('')
+      console.log($('#filePicker').prop('files'))
+      $('#files').html('Select Files')
 
       //Reset player variables
       player.resetAnnotations()
@@ -109,11 +109,11 @@ module.exports = {
       let intPositionObj = {}
       for(i = 0; i < player.annotations.length; i++) {
         let annotation = {
-          "options": {
-            "start": player.annotations[i].start,
-            "end": player.annotations[i].end,
-            "type": player.annotations[i].type,
-            "details": player.annotations[i].details
+          'options': {
+            'start': player.annotations[i].start,
+            'end': player.annotations[i].end,
+            'type': player.annotations[i].type,
+            'details': player.annotations[i].details
           }
         }
         if(annotation.options.details.intPositions) {
@@ -139,7 +139,7 @@ module.exports = {
     },
 
     get_selected_files: () => {
-      var fileList = document.getElementById('filePicker').files,
+      var fileList = $('#filePicker').prop('files'),
           jsonFile = null,
           icfFile = null,
           videoFile = null,
@@ -147,6 +147,7 @@ module.exports = {
           icfFileExists = false,
           videoFileExists = false
 
+      if(!fileList) return null
       for(var i=0; i < fileList.length; i++){
         var ext = fileList[i]['name'].split('.')[1]
         if (ext === 'json'){
@@ -227,13 +228,12 @@ module.exports = {
       else
         boxLeft = (winWidth - vidWidth) / 2
 
-      var box = document.getElementById('box')
-
-      box.style.top = `${boxTop}px`
-      box.style.left = `${boxLeft}px`
-
-      box.style.height = `${vidHeight}px`
-      box.style.width = `${vidWidth}px`
+      $('#box').css({
+        top: `${boxTop}px`,
+        left: `${boxLeft}px`,
+        height: `${vidHeight}px`,
+        width: `${vidWidth}px`
+      })
     },
 
     parse_n_play: (jsonFile, initialise_callback) => {
@@ -278,8 +278,7 @@ module.exports = {
       player.annotate()
 
       // Hide Splash Screen
-      let splashScreen = document.getElementById('splashScreen')
-      splashScreen.style.visibility = 'hidden'
+      $('#splashScreen').css('visibility', 'hidden')
 
       const files = player.get_selected_files()
 
@@ -288,20 +287,17 @@ module.exports = {
       player.video_obj.src = videoPath
 
       // Show Player
-      let playerContainer = document.getElementById('playerContainer')
-      playerContainer.style.visibility = 'visible'
+      $('#playerContainer').css('visibility', 'visible')
 
       // Show Save and Reload JSON buttons if annotationMode = true
-      let reloadJsonBtn = document.getElementById('reloadJsonBtn')
-      reloadJsonBtn.style.visibility = annotationMode ? 'visible' : 'hidden'
-      let saveJsonBtn = document.getElementById('saveJsonBtn')
-      saveJsonBtn.style.visibility = annotationMode ? 'visible' : 'hidden'
+      $('#reloadJsonBtn').css('visibility', annotationMode ? 'visible' : 'hidden')
+      $('#saveJsonBtn').css('visibility', annotationMode ? 'visible' : 'hidden')
 
       // Hide Splash Screen
-      let splashScreenContainer = document.getElementById('splashScreen')
-      splashScreenContainer.style.visibility = 'hidden'
+      $('#splashScreen').css('visibility', 'hidden')
 
       // Set background to black
+      // TODO: Make this a JQuery object
       document.body.style.background = 'black'
 
       console.log(player.annotations)
@@ -356,40 +352,34 @@ module.exports = {
 
     blank: () => {
       player.video_obj.classList.add('blanked')
-      var style = document.createElement('style')
-      style.id = 'mask'
-      style.innerHTML = `
+      $('<style>').attr('id', 'mask').html(`
         video.blanked::-webkit-media-controls {
           background-color: black;
         }
         video.blanked::-webkit-media-text-track-container {
           z-index: 1;
-        }`
-      document.body.appendChild(style)
+        }`).appendTo(document.body)
     },
 
     unblank: () => {
       player.video_obj.classList.remove('blanked')
-      document.getElementById('mask').outerHTML=''
+      $('#mask').html('')
     },
 
     blur: () => {
       player.video_obj.classList.add('blurred')
-      var style = document.createElement('style')
-      style.id = 'mask'
-      style.innerHTML = `
+      $('<style>').attr('id', 'mask').html(`
         video.blurred::-webkit-media-controls {
           backdrop-filter: blur(10px);
         }
         video.blurred::-webkit-media-text-track-container {
           z-index: 1;
-        }`
-      document.body.appendChild(style)
+        }`).appendTo(document.body)
     },
 
     unblur: () => {
       player.video_obj.classList.remove('blurred')
-      document.getElementById('mask').outerHTML=''
+      $('#mask').html('')
     },
 
     mute: () => { player.video_obj.muted =  true },
@@ -405,16 +395,16 @@ module.exports = {
       }
       for(var i = 0; i < player.annotations.length; i++) {
         if(player.annotations[i].type == 'censor') {
-          var censor = document.getElementById('censor' + i)
-          if(censor) {
+          $censor = $('#censor' + i)
+          if($censor) {
             try{
-              $('#censor'+i).draggable("disable");
-              $('#censor'+i).resizable("disable");
+              $censor.draggable('disable');
+              $censor.resizable('disable');
             }
             catch(e) {
               // do nothing, draggable and resizable weren't defined
             }
-            censor.parentNode.removeChild(censor)
+            $censor.remove()
           }
         }
       }
@@ -426,22 +416,20 @@ module.exports = {
         player.pause()
       }
 
-      let issueDialog = document.getElementById('issueDialog')
-      issueDialog.style.visibility = 'visible'
+      $('#issueDialog').css('visibility', 'visible')
 
       $('#issueDialog').dialog({
         close: function (type, data) {
-          let issueDialog = document.getElementById('issueDialog')
-          issueDialog.style.visibility = 'hidden'
+          $('#issueDialog').css('visibility', 'hidden')
         },
         buttons: {
-          "Report Issue on GitHub": function() {
-            const url = "https://github.com/BYU-ODH/electron_player/issues/new";
+          'Report Issue on GitHub': function() {
+            const url = 'https://github.com/BYU-ODH/electron_player/issues/new';
             window.open(url);
-            $(this).dialog("close");
+            $(this).dialog('close');
           }
         }
-      });
+      })
     },
 
     interpolateCensor: (annotation) => {
@@ -705,33 +693,31 @@ module.exports = {
             if (time >= aStart && time < aEnd) {
               if (!document.getElementById('censor'+i)) {
                 console.log('censor on')
-                var censor = document.createElement('div')
-                censor.id = 'censor' + i
-                censor.classList.add('censor')
-                censor.classList.add(aDetails['type'])
-                censor.style = `
-                  position: absolute;
-                  width: ` + aDetails['position'][aStart][2] + `%;
-                  height: ` + aDetails['position'][aStart][3] + `%;
-                  left: ` + aDetails['position'][aStart][0] + `%;
-                  top: ` + aDetails['position'][aStart][1] + `%;` //padding-bottom sets the height relative to the width
+                $censor = $('<div>')
+                $censor.attr('id', 'censor'+i)
+                $censor.addClass('censor ' + aDetails['type'])
+                $censor.css({
+                  position: 'absolute',
+                  width: aDetails['position'][aStart][2] + '%',
+                  height: aDetails['position'][aStart][3] + '%',
+                  left: aDetails['position'][aStart][0] + '%',
+                  top: aDetails['position'][aStart][1] + '%'
+                })
                 if (aDetails['type'] == 'black' || aDetails['type'] == 'red') {
-                  censor.style['background-color'] = aDetails['type']//'black'
+                  $censor.css({ 'background-color': aDetails['type']})
                 } else if (aDetails['type'] == 'blur') {
-                  censor.style['backdrop-filter'] = 'blur(' + aDetails['amount'] + ')'
+                  $censor.css({ 'backdrop-filter': 'blur(' + aDetails['amount'] + ')' })
                 }
-
-                document.getElementById('box').appendChild(censor)
+                $censor.appendTo($('#box'))
 
                 if(annotationMode) {
-                  censor.classList.add('censor-annotate')
-                  var index = censor.id.replace('censor','')
-                  var $censor = $('#' + censor.id)
+                  var $censor = $('#censor'+i)
+                  var index = $censor.attr('id').replace('censor','')
                   var tooltipContent = '[' + aDetails['position'][aStart][0] + ',' + aDetails['position'][aStart][1] +
                                     ',' + aDetails['position'][aStart][2] + ',' + aDetails['position'][aStart][3] +']'
                   $censor.tooltip({
                     content: tooltipContent,
-                    items: '#' + censor.id
+                    items: '#' + $censor.attr('id')
                   })
                   $censor.tooltip('disable');
 
@@ -756,8 +742,8 @@ module.exports = {
                       }
 
                       let $censor = $('#censor'+index)
-                      $censor.tooltip("option", "content", '[' + left + ',' + top+ ',' + width + ',' + height + ']');
-                      $censor.tooltip( "option", "items", '#censor'+index);
+                      $censor.tooltip('option', 'content', '[' + left + ',' + top+ ',' + width + ',' + height + ']');
+                      $censor.tooltip( 'option', 'items', '#censor'+index);
 
                       player.interpolateCensor(player.annotations[index])
                     }
@@ -779,37 +765,46 @@ module.exports = {
                       player.annotations[index].details.position[annoTime][1] = top
 
                       let $censor = $('#censor'+index)
-                      $censor.tooltip("option", "content", '[' + left + ',' + top+ ',' + width + ',' + height + ']');
-                      $censor.tooltip( "option", "items", '#censor'+index);
+                      $censor.tooltip('option', 'content', '[' + left + ',' + top+ ',' + width + ',' + height + ']');
+                      $censor.tooltip( 'option', 'items', '#censor'+index);
 
                       player.interpolateCensor(player.annotations[index])
                     }
                   })
                 }
               } else {
+                $censor = $('#censor' + i)
                 if(a.details.interpolate) {
                   annoTime = Object.keys(a.details.intPositions).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
-                  document.getElementById('censor'+i).style.left = aDetails['intPositions'][annoTime][0]+'%'
-                  document.getElementById('censor'+i).style.top = aDetails['intPositions'][annoTime][1]+'%'
+                  $censor.css({
+                    left: aDetails['intPositions'][annoTime][0]+'%',
+                    top: aDetails['intPositions'][annoTime][1]+'%'
+                  })
                   if (aDetails['intPositions'][annoTime][2] && aDetails['intPositions'][annoTime][3]) {
-                    document.getElementById('censor'+i).style.width = aDetails['intPositions'][annoTime][2]+'%'
-                    document.getElementById('censor'+i).style.height = aDetails['intPositions'][annoTime][3]+'%'
+                    $censor.css({
+                      width: aDetails['intPositions'][annoTime][2]+'%',
+                      height: aDetails['intPositions'][annoTime][3]+'%'
+                    })
                   }
                 }
                 else {
                   annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
-                  document.getElementById('censor'+i).style.left = aDetails['position'][annoTime][0]+'%'
-                  document.getElementById('censor'+i).style.top = aDetails['position'][annoTime][1]+'%'
+                  $censor.css({
+                    left: aDetails['positions'][annoTime][0]+'%',
+                    top: aDetails['positions'][annoTime][1]+'%'
+                  })
                   if (aDetails['position'][annoTime][2] && aDetails['position'][annoTime][3]) {
-                    document.getElementById('censor'+i).style.width = aDetails['position'][annoTime][2]+'%'
-                    document.getElementById('censor'+i).style.height = aDetails['position'][annoTime][3]+'%'
+                    $censor.css({
+                      width: aDetails['positions'][annoTime][2]+'%',
+                      height: aDetails['positions'][annoTime][3]+'%'
+                    })
                   }
                 }
               }
             } else {
-              if (document.getElementById('censor'+i)) {
+              if($('#censor'+i).length) {
                 console.log('censor off')
-                document.getElementById('censor'+i).outerHTML = ''
+                $('#censor'+i).remove()
               }
             }
             break
