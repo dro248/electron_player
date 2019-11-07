@@ -5,8 +5,8 @@ module.exports = {
     annotations: null,
     currently: null,
     json_file_path: null,
-    current_time: 0, // While reloading the JSON, what is the current time of the player
-    paused: false, // While reloading the JSON, is the player paused or playing
+    current_time: 0, // The current time of the player
+    paused: false, // Is the player paused or playing
 
     button_press: () => {
       const files = player.get_selected_files()
@@ -238,6 +238,10 @@ module.exports = {
                             'details': jsonGuts[i].options['details']
                            }
         }
+
+        if(annotation['type'] == 'censor' && annotation['details']['interpolate']) {
+          player.interpolateCensor(annotation)
+        }
         player.annotations.push(annotation)
       }
       player.annotate()
@@ -267,11 +271,6 @@ module.exports = {
       // Set background to black
       document.body.style.background = 'black'
 
-      // Play the video
-      if(!player.paused) {
-        player.play()
-      }
-
       console.log(player.annotations)
 
       player.censors = []
@@ -289,6 +288,11 @@ module.exports = {
       }
 
       player.addListenersAtStart()
+
+      // Play the video
+      if(!player.paused) {
+        player.play()
+      }
     },
 
     annotate: () => {
@@ -406,6 +410,76 @@ module.exports = {
           }
         }
       });
+    },
+
+    interpolateCensor: (annotation) => {
+      annotation.details['intPositions'] = {}
+      let position = annotation.details.position
+      let timeKeys = Object.keys(position).sort((a,b) => {
+        return parseFloat(a, 10) - parseFloat(b, 10)
+      })
+
+      for(let i = 0; i < timeKeys.length; i++) {
+        let t1 = null
+        let t2 = null
+        if(timeKeys[i+1]) {
+          t1 = timeKeys[i]
+          t2 = timeKeys[i+1]
+          annotation.details['intPositions'][t1] = position[t1]
+        }
+        else {
+          annotation.details['intPositions'][timeKeys[i]] = position[timeKeys[i]]
+          break;
+        }
+
+        let maxTimeInterval = 1/30
+        let tdiff = parseFloat(t2) - parseFloat(t1)
+        let incr = Math.floor(tdiff / maxTimeInterval)
+        if (tdiff <= maxTimeInterval) continue
+
+        let xincr = (position[t2][0] - position[t1][0]) / incr
+        let yincr = (position[t2][1] - position[t1][1]) / incr
+
+        let wincr = null
+        let hincr = null
+        if (position[t1][2] && position[t1][3]
+            && position[t2][2] && position[t2][3]) {
+          wincr = (position[t2][2] - position[t1][2]) / incr
+          hincr = (position[t2][3] - position[t1][3]) / incr
+        }
+
+        for (let i = 1; i < incr; i++) {
+          let tmid = t1 + i * maxTimeInterval
+          let xmid = position[t1][0] + i * xincr
+          let ymid = position[t1][1] + i * yincr
+          let wmid = null
+          let hmid = null
+          if(wincr && hincr) {
+            wmid = position[t1][2] + i * wincr
+            if(xmid + wmid > 100) {
+              wmid = 100 - xmid
+            }
+            hmid = position[t1][3] + i * hincr
+            if(ymid + hmid > 100) {
+              hmid = 100 - ymid
+            }
+            annotation.details['intPositions'][tmid] = [xmid, ymid, wmid, hmid]
+          }
+          else {
+            annotation.details['intPositions'][tmid] = [xmid, ymid]
+          }
+        }
+
+        /*document.getElementById('censor'+i).style.left = (position[prevTime][0]+ incrLeft) + '%'
+        document.getElementById('censor'+i).style.top = (position[prevTime][1]+ incrTop) +'%'
+        if (incrWidth && incrHeight) {
+          document.getElementById('censor'+i).style.width = (position[prevTime][2]+ incrWidth) + '%'
+          document.getElementById('censor'+i).style.height = (position[prevTime][3]+ incrHeight) +'%'
+        }
+
+        /*a['options']['details']['position'] = {stringify(t): p for t, p
+                                               in sorted(tmp_pos_dict.items())}*/
+      }
     },
 
     addListenersAtStart: () => {
@@ -595,74 +669,77 @@ module.exports = {
                   censor.classList.add('censor-annotate')
                   var index = censor.id.replace('censor','')
                   var jqCensor = $('#' + censor.id)
-                  var tooltipContent = jqCensor.width() + 'x' + jqCensor.height()
+                  var tooltipContent = '[' + aDetails['position'][aStart][0] + ',' + aDetails['position'][aStart][1] +
+                                    ',' + aDetails['position'][aStart][2] + ',' + aDetails['position'][aStart][3] +']'
                   jqCensor.tooltip({
                     content: tooltipContent,
                     items: '#' + censor.id
                   })
 
-                  // TODO: Update aDetails and JSON file
-                  // annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
-                  // aDetails['position'][annoTime]['width'] = ui.size.width
-                  // maybe have a button like Reload JSON filters, "Save JSON filters"
-
+                  //TODO: The percentages in the json file are different than the ones that I create
+                  // let top = Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight)
+                  // player.annotations[index].details.position[annoTime][1] = top
+                  // as opposed to:
+                  // document.getElementById('censor'+i).style.top = aDetails['position'][annoTime][1]+'%'
+                  // find out what the percentage is of. I think that it's of the parent element, not the screen
                   jqCensor.resizable({
                     stop: function(e, ui) {
-                      console.log('resize: ' + player.video_obj.currentTime)
-                      jqCensor.tooltip({
-                        content: ui.size.width + 'x' + ui.size.height,
-                        items: '#' + censor.id
-                      })
+                      let currentTime = player.current_time
+                      let annoTime = Object.keys(player.annotations[index].details.position)
+                          .reduce((prev, curr) => Math.abs(curr - currentTime) < Math.abs(prev - currentTime) ? curr : prev)
 
-                      annoTime = Object.keys(player.annotations[index].details.position)
-                          .reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
+                      let left = Math.round(100 * ui.position.left / ui.element[0].parentElement.clientWidth)
+                      let top = Math.round(100 * ui.position.top / ui.element[0].parentElement.clientHeight)
+                      let newWidth = Math.round(100 * ui.size.width / ui.element[0].parentElement.clientWidth)
+                      let newHeight = Math.round(100 * ui.size.height / ui.element[0].parentElement.clientHeight)
+
                       if (player.annotations[index].details.position[annoTime][2]
-                            && player.annotations[index].details.position[annoTime][3]) {
-                        player.annotations[index].details.position[annoTime][2]
-                            = Math.round(100 * ui.size.width / ui.element.offsetParent().width())
-                        player.annotations[index].details.position[annoTime][3]
-                            = Math.round(100 * ui.size.height / ui.element.offsetParent().height())
+                                      && player.annotations[index].details.position[annoTime][3]) {
+                        player.annotations[index].details.position[annoTime][2] = newWidth
+                        player.annotations[index].details.position[annoTime][3] = newHeight
                       }
                       else {
-                        player.annotations[index].details.position[annoTime].push(ui.size.width, ui.size.height)
+                        player.annotations[index].details.position[annoTime].push(newWidth, newHeight)
                       }
-                      console.log(player.annotations[index].details.position[annoTime])
+
+                      let jqCensor = $('#censor'+index)
+                      jqCensor.tooltip("option", "content", '[' + left + ',' + top+ ',' + newWidth + ',' + newHeight + ']');
+                      jqCensor.tooltip( "option", "items", '#censor'+index);
                     }
                   })
 
                   jqCensor.draggable({
                     stop: function(e, ui) {
-                      console.log('draggable: ' + player.video_obj.currentTime)
-                      annoTime = Object.keys(player.annotations[index].details.position)
-                          .reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev)
+                      let currentTime = player.current_time
+                      let annoTime = Object.keys(player.annotations[index].details.position)
+                          .reduce((prev, curr) => Math.abs(curr - currentTime) < Math.abs(prev - currentTime) ? curr : prev)
 
-                      // TODO: I'm not sure if this works yet, maybe it should just be ui.offset.left
-                      // I think that the annoTime only returns the start time, because it saves the
-                      // variable 'time' from the original run through of this function, we need to
-                      // know what the current time is: maybe player.video_obj.currentTime would be more accurate
-                      // Make sure to do it for both draggable and resizable
+                      let left = Math.round(100 * ui.offset.left / ui.helper[0].parentElement.clientWidth)
+                      let top = Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight)
+                      let newWidth = Math.round(100 * ui.helper[0].clientWidth / ui.helper[0].parentElement.clientWidth)
+                      let newHeight = Math.round(100 * ui.helper[0].clientHeight / ui.helper[0].parentElement.clientHeight)
 
-                      /*console.log(annoTime)
-                      console.log(player.annotations)
-                      console.log('Left')
-                      console.log(ui.offset.left)
-                      console.log(ui.helper[0].parentElement.clientWidth)
-                      console.log(Math.round(100 * ui.offset.left / ui.helper[0].parentElement.clientWidth))
-                      console.log('Top')
-                      console.log(ui.offset.top)
-                      console.log(ui.helper[0].parentElement.clientHeight)
-                      console.log(Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight))*/
-                      player.annotations[index].details.position[annoTime][0]
-                          = Math.round(100 * ui.offset.left / ui.helper[0].parentElement.clientWidth)
-                      player.annotations[index].details.position[annoTime][1]
-                          = Math.round(100 * ui.offset.top / ui.helper[0].parentElement.clientHeight)
+                      player.annotations[index].details.position[annoTime][0] = left
+                      player.annotations[index].details.position[annoTime][1] = top
+
+                      let jqCensor = $('#censor'+index)
+                      jqCensor.tooltip("option", "content", '[' + left + ',' + top+ ',' + newWidth + ',' + newHeight + ']');
+                      jqCensor.tooltip( "option", "items", '#censor'+index);
+                      console.log(player.annotations[index].details.position[annoTime])
                     }
                   })
                 }
               } else {
-                // TODO: Why is this j, but in the code it doesn't reference j
-                for (var j = 0; j < player.censors.length; j++) {
-                  annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
+                annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
+                if(a.details.interpolate) {
+                  document.getElementById('censor'+i).style.left = aDetails['intPositions'][annoTime][0]+'%'
+                  document.getElementById('censor'+i).style.top = aDetails['intPositions'][annoTime][1]+'%'
+                  if (aDetails['intPositions'][annoTime][2] && aDetails['intPositions'][annoTime][3]) {
+                    document.getElementById('censor'+i).style.width = aDetails['intPositions'][annoTime][2]+'%'
+                    document.getElementById('censor'+i).style.height = aDetails['intPositions'][annoTime][3]+'%'
+                  }
+                }
+                else {
                   document.getElementById('censor'+i).style.left = aDetails['position'][annoTime][0]+'%'
                   document.getElementById('censor'+i).style.top = aDetails['position'][annoTime][1]+'%'
                   if (aDetails['position'][annoTime][2] && aDetails['position'][annoTime][3]) {
@@ -670,6 +747,16 @@ module.exports = {
                     document.getElementById('censor'+i).style.height = aDetails['position'][annoTime][3]+'%'
                   }
                 }
+
+                /*let jqCensor = $('#censor'+i)
+                let newWidth = Math.round(100 * jqCensor.width() / jqCensor[0].parentElement.clientWidth)
+                let newHeight = Math.round(100 * jqCensor.height() / jqCensor[0].parentElement.clientHeight)
+
+                var tooltipContent = '[' + aDetails['position'][annoTime][0] + ',' + aDetails['position'][annoTime][1] +
+                                  ',' + newWidth + ',' + newHeight +']'
+
+                jqCensor.tooltip("option", "content", tooltipContent)
+                jqCensor.tooltip("option", "items", '#censor'+i);*/
               }
             } else {
               if (document.getElementById('censor'+i)) {

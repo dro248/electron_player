@@ -46,6 +46,7 @@
       "type": "censor",
       "details": {
         "type": "black",
+        "interpolate": true,
         "position": {
           "0":     [18, 18, 15, 15],
           "2":     [16, 18],
@@ -88,6 +89,7 @@
       "type": "censor",
       "details": {
         "type": "blur",
+        "interpolate": true,
         "amount": "30px",
         "size": {
           "6": "10"
