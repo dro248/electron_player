@@ -2,7 +2,7 @@
 module.exports = {
   player : {
     // TODO: Make video_obj a JQuery object
-    video_obj: document.getElementById('player'),
+    $video_obj: $('#player'),
     annotations: null,
     currently: null,
     json_file_path: null,
@@ -87,11 +87,11 @@ module.exports = {
     reload_json: () => {
       console.log('Reloading JSON')
       player.reloading_json = true
-      let reload_json_time = player.video_obj.currentTime
-      player.current_time = player.video_obj.currentTime
-      player.paused = player.video_obj.paused
+      let reload_json_time = player.$video_obj.prop('currentTime')
+      player.current_time = player.$video_obj.prop('currentTime')
+      player.paused = player.$video_obj.prop('paused')
 
-      Events.removeListener(player.video_obj, 'playing', (event) => {
+      Events.removeListener(document.getElementById('player'), 'playing', (event) => {
         return
       })
 
@@ -100,7 +100,7 @@ module.exports = {
       var fileData = fs.readFileSync(player.json_file_path)
       player.initialise_callback(fileData)
       player.current_time = reload_json_time
-      player.video_obj.currentTime = reload_json_time
+      player.$video_obj.prop('currentTime', reload_json_time)
       player.reloading_json = false
     },
 
@@ -189,14 +189,14 @@ module.exports = {
     },
 
     get_video_dimensions: () => {
-      var video = player.video_obj
+      var $video = player.$video_obj
 
       // Ratio of the video's intrisic dimensions
-      var videoRatio = video.videoWidth / video.videoHeight
+      var videoRatio = $video.prop('videoWidth') / $video.prop('videoHeight')
 
       // The width and height of the video element
-      var width = video.offsetWidth
-      var height = video.offsetHeight
+      var width = $video.prop('offsetWidth')
+      var height = $video.prop('offsetHeight')
 
       // The ratio of the element's width to its height
       var elementRatio = width/height
@@ -284,7 +284,7 @@ module.exports = {
 
       // Set video src to given file
       let videoPath = files['videoFile']['path']
-      player.video_obj.src = videoPath
+      player.$video_obj.prop('src', videoPath)
 
       // Show Player
       $('#playerContainer').css('visibility', 'visible')
@@ -327,7 +327,7 @@ module.exports = {
     annotate: () => {
       console.log('in the annotate function')
       player.currently = {'muting': -1, 'blanking': -1, 'blurring': -1}
-      Events.addListener(player.video_obj, 'playing', (event) => {
+      Events.addListener(document.getElementById('player'), 'playing', (event) => {
         player.onFrameAdv()
       })
     },
@@ -335,23 +335,23 @@ module.exports = {
     // Annotation Handlers
 
     play: () => {
-      player.video_obj.play()
+      player.$video_obj.trigger('play');
       player.paused = false
     },
 
     pause: () => {
-      player.video_obj.pause()
+      player.$video_obj.trigger('pause');
       player.paused = true
     },
 
     skip_to: (time) => {
-      player.video_obj.currentTime = time
+      player.$video_obj.prop('currentTime', time)
       player.current_time = time
       player.onFrameAdv()
     },
 
     blank: () => {
-      player.video_obj.classList.add('blanked')
+      player.$video_obj.addClass('blanked')
       $('<style>').attr('id', 'mask').html(`
         video.blanked::-webkit-media-controls {
           background-color: black;
@@ -362,12 +362,12 @@ module.exports = {
     },
 
     unblank: () => {
-      player.video_obj.classList.remove('blanked')
+      player.$video_obj.removeClass('blanked')
       $('#mask').html('')
     },
 
     blur: () => {
-      player.video_obj.classList.add('blurred')
+      player.$video_obj.addClass('blurred')
       $('<style>').attr('id', 'mask').html(`
         video.blurred::-webkit-media-controls {
           backdrop-filter: blur(10px);
@@ -378,19 +378,19 @@ module.exports = {
     },
 
     unblur: () => {
-      player.video_obj.classList.remove('blurred')
+      player.$video_obj.removeClass('blurred')
       $('#mask').html('')
     },
 
-    mute: () => { player.video_obj.muted =  true },
+    mute: () => { player.$video_obj.prop('muted',  true) },
 
-    unmute: () => { player.video_obj.muted = false },
+    unmute: () => { player.$video_obj.prop('muted', false) },
 
     resetAnnotations: () => {
-      if(player.video_obj.classList.contains('blanked')) {
+      if(player.$video_obj.hasClass('blanked')) {
         player.unblank()
       }
-      if(player.video_obj.classList.contains('blurred')) {
+      if(player.$video_obj.hasClass('blurred')) {
         player.unblur()
       }
       for(var i = 0; i < player.annotations.length; i++) {
@@ -412,7 +412,7 @@ module.exports = {
     },
 
     report_issue: () => {
-      if(!player.video_obj.paused) {
+      if(!player.$video_obj.prop('paused')) {
         player.pause()
       }
 
@@ -493,34 +493,34 @@ module.exports = {
     },
 
     addListenersAtStart: () => {
-      Events.addListener(player.video_obj, 'loadedmetadata', ()=> {
+      Events.addListener(document.getElementById('player'), 'loadedmetadata', ()=> {
         // Draw box initially
         player.draw_box()
-        player.video_obj.currentTime = player.current_time
+        player.$video_obj.prop('currentTime', player.current_time)
       })
 
       // Add listener to hide controls at the end of video
-      Events.addListener(player.video_obj, 'ended', () => {
-        player.video_obj.controls = false
+      Events.addListener(document.getElementById('player'), 'ended', () => {
+        player.$video_obj.prop('controls', false)
       })
 
       //Add listener to reveal controls as end of video on mousemove
-      Events.addListener(player.video_obj, 'mousemove', () => {
-        player.video_obj.controls = true
+      Events.addListener(document.getElementById('player'), 'mousemove', () => {
+        player.$video_obj.prop('controls', true)
       })
 
-      Events.addListener(player.video_obj, 'seeked', () => {
-        if(player.paused && player.current_time + 1.5 < player.video_obj.currentTime) {
-          player.current_time = player.video_obj.currentTime
+      Events.addListener(document.getElementById('player'), 'seeked', () => {
+        if(player.paused && player.current_time + 1.5 < player.$video_obj.prop('currentTime')) {
+          player.current_time = player.$video_obj.prop('currentTime')
           if(!player.reloading_json) player.onFrameAdv()
         }
-        else if (player.paused && player.current_time - 1.5 > player.video_obj.currentTime) {
-          player.current_time = player.video_obj.currentTime
+        else if (player.paused && player.current_time - 1.5 > player.$video_obj.prop('currentTime')) {
+          player.current_time = player.$video_obj.prop('currentTime')
           if(!player.reloading_json) player.onFrameAdv()
         }
       })
 
-      Events.addListener(player.video_obj, 'pause', () => {
+      Events.addListener(document.getElementById('player'), 'pause', () => {
         player.paused = true
         if(player.annotations) {
           for (var i = 0; i < player.annotations.length; i++) {
@@ -554,7 +554,7 @@ module.exports = {
         }
       })
 
-      Events.addListener(player.video_obj, 'play', () => {
+      Events.addListener(document.getElementById('player'), 'play', () => {
         player.paused = false
         for (var i = 0; i < player.annotations.length; i++) {
           if (player.annotations[i].type == 'censor') {
@@ -569,7 +569,7 @@ module.exports = {
         // Space
         if (e.keyCode == 32) {
           player.paused ? player.play() : player.pause()
-          player.current_time = player.video_obj.currentTime
+          player.current_time = player.$video_obj.prop('currentTime')
         }
       }
 
@@ -578,7 +578,7 @@ module.exports = {
         e = e || window.event
         // Right arrow
         if (e.keyCode == 39) {
-          if(player.video_obj.paused) {
+          if(player.$video_obj.prop('paused')) {
             player.skip_to(player.current_time + 0.1)
           }
           else {
@@ -587,7 +587,7 @@ module.exports = {
         }
         // Left arrow
         else if (e.keyCode == 37) {
-          if(player.video_obj.paused) {
+          if(player.$video_obj.prop('paused')) {
             player.skip_to(player.current_time - 0.1)
           }
           else {
@@ -615,14 +615,14 @@ module.exports = {
 
     onFrameAdv: () => {
       if(!player.annotations) return
-      var time = player.video_obj.currentTime
-      player.current_time = player.video_obj.currentTime
+      var time = player.$video_obj.prop('currentTime')
+      player.current_time = player.$video_obj.prop('currentTime')
 
       var numAnnotations = player.annotations.length
       for (var i = 0; i < numAnnotations; i++) {
-        var vMuted = player.video_obj.muted
-        var vBlanked = player.video_obj.classList.contains('blanked')
-        var vBlurred = player.video_obj.classList.contains('blurred')
+        var vMuted = player.$video_obj.prop('muted')
+        var vBlanked = player.$video_obj.hasClass('blanked')
+        var vBlurred = player.$video_obj.hasClass('blurred')
 
         var a = player.annotations[i]
         var aStart = a['start']
@@ -712,6 +712,7 @@ module.exports = {
 
                 if(annotationMode) {
                   var $censor = $('#censor'+i)
+                  $censor.addClass('censor-annotate')
                   var index = $censor.attr('id').replace('censor','')
                   var tooltipContent = '[' + aDetails['position'][aStart][0] + ',' + aDetails['position'][aStart][1] +
                                     ',' + aDetails['position'][aStart][2] + ',' + aDetails['position'][aStart][3] +']'
@@ -810,7 +811,7 @@ module.exports = {
             break
         }
       }
-      if (player.video_obj.paused) {
+      if (player.$video_obj.prop('paused')) {
         return
       }
       requestAnimationFrame(player.onFrameAdv)
