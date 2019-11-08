@@ -1,7 +1,6 @@
 
 module.exports = {
   player : {
-    // TODO: Make video_obj a JQuery object
     $video_obj: $('#player'),
     annotations: null,
     currently: null,
@@ -68,7 +67,6 @@ module.exports = {
       player.pause()
 
       // Set background to normal
-      // TODO: Make this a JQuery object
       document.body.style.background = 'linear-gradient(to right, #1e425e, #839aa8, #1e425e)'
 
       //Clear selected files
@@ -297,7 +295,6 @@ module.exports = {
       $('#splashScreen').css('visibility', 'hidden')
 
       // Set background to black
-      // TODO: Make this a JQuery object
       document.body.style.background = 'black'
 
       console.log(player.annotations)
