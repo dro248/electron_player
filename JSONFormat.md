@@ -7,14 +7,43 @@ There are five types of video annotations:
 4. blur
 5. and censors
 
-Each one does something a bit different.
+Each one does something a bit different. When defining the annotations, create
+a json file. Within that json file have an array of annotations. Overall the
+code should look something like this:
+
+``` json
+[
+  {
+    "options": {
+      "start": "21",
+      "end": "35",
+      "type": "skip",
+      "details": {}
+    }
+  },
+  {
+    "options": {
+      "start": "37",
+      "end": "48",
+      "type": "mute",
+      "details": {}
+    }
+  }
+]
+```
+
+We now introduce the types of annotations.
 
 ## Skip
+
+The skip annotation skips the video forward to a specific time, from the 'start'
+time to the 'end' time. Nothing in between the two times will be seen.
 
 ### Skip Example
 ``` json
 {
   "options": {
+    "label": "Logo 0:00:21 - 0:00:35",
     "start": "21",
     "end": "35",
     "type": "skip",
@@ -23,14 +52,18 @@ Each one does something a bit different.
 }
 ```
 
-## Mute (what is mutePlugin?)
+## Mute
+
+The mute annotation will mute a section of the video, from the 'start' time to
+the 'end' time.
 
 ### Mute Example
 ``` json
 {
   "options": {
-    "start": "37",
-    "end": "48",
+    "label": "Words 48:37",
+    "start": "2917",
+    "end": "2922",
     "type": "mute",
     "details": {}
   }
@@ -39,10 +72,14 @@ Each one does something a bit different.
 
 ## Blank
 
+The blank annotation will black out the entire screen for a set period of time,
+as denoted by the start and end times.
+
 ### Blank Example
 ``` json
 {
   "options": {
+    "label": "Bridge 0:00:40 - 0:00:45",
     "start": "40",
     "end": "45",
     "type": "blank",
@@ -53,10 +90,14 @@ Each one does something a bit different.
 
 ## Blur
 
+The blur annotation will blur the entire screen for a set period of time,
+as denoted by the start and end times.
+
 ### Blur Example
 ``` json
 {
   "options": {
+    "label": "Panda 0:00:02 - 0:00:10",
     "start": "2",
     "end": "10",
     "type": "blur",
@@ -67,21 +108,23 @@ Each one does something a bit different.
 
 ## Censor
 
-Each censor has an interpolate boolean, which determines if the program will interpolate
-between the censors.
+The censor annotation can be used to cover up some sections of the screen. The
+position of the censor bar depends on
 
-I'm not sure what the this part of the details does.
-``` json
-"size": {
-  "6": "10"
-}
-```
+Each censor has an interpolate boolean, which determines if the program will interpolate
+between the censors, which would make the annimation from each position of the
+censor a smoother.
+
+There are two types of censors: blur and black. The "blur" censor blurs the image
+of a rectangle defined by the `position` value. It is blurred according to the
+`amount` value. The "black" type blacks out a rectangle the as defined by the `position`.
 
 ### Censor Examples
 #### Solid Color Censor
 ``` json
 {
   "options": {
+    "label": "Sky 0:00:00 - 0:00:13",
     "start": "0",
     "end": "13",
     "type": "censor",
@@ -108,6 +151,7 @@ I'm not sure what the this part of the details does.
 ``` json
 {
   "options": {
+    "label": "Sky 0:00:06 - 0:00:19",
     "start": "6",
     "end": "19",
     "type": "censor",
