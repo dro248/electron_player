@@ -1,24 +1,36 @@
-var electron = require('electron')
-var path = require('path')
+const { app, BrowserWindow, ipcMain } = require('electron')
+const path = require('path')
 
-// Keep a global reference of the window object so that it isn't garbage collected
-var mainWindow = null
+const argv = process.argv;
+var mainWindow = null;
 
-
-// This method will be called when Electron has finished
-// initializing and is ready to create browser windows.
-electron.app.on('ready', function () {  
-	// Create the Splash Screen window
-	mainWindow = new electron.BrowserWindow({
-		width: 1000, 
-		height: 780, 
+function createWindow () {
+  // Create the browser window.
+  mainWindow = new BrowserWindow({
+    width: 1000,
+		height: 780,
 		frame: true,
-		icon: path.join(__dirname, 'filmstrip.png'),
-		webPreferences: { experimentalFeatures: true}
-	})
+		icon: path.join(__dirname, '/resources/filmstrip.png'),
+    webPreferences: {
+      nodeIntegration: true
+    }
+  })
 
-	// Dev mode: comment out the following line
-	// mainWindow.setMenu(null)
-	
-	mainWindow.loadURL('file://' + __dirname + '/player.html')  
+  // and load the index.html of the app.
+  mainWindow.loadURL('file://' + __dirname + '/renderer/player.html')
+}
+
+app.on('ready', createWindow)
+
+ipcMain.on('request-cmd-argv', (event, arg) => {
+  event.reply('response-cmd-argv', argv)
+})
+
+ipcMain.on('toggle-dev-tools', (event, annotationMode) => {
+  if(annotationMode && !mainWindow.webContents.isDevToolsOpened()) {
+    mainWindow.webContents.toggleDevTools()
+  }
+  else if(!annotationMode && mainWindow.webContents.isDevToolsOpened()) {
+    mainWindow.webContents.toggleDevTools()
+  }
 })

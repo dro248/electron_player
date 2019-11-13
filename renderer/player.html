@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="shortcut icon" href="../resources/filmstrip.png">
+  <title>BYU International Cinema - Video Player</title>
+</head>
+<body>
+  <div id='splashScreen'>
+    <div class='container'>
+      <img id='logo' src='../resources/ic_round.png'></img><br>
+      <div id='selectFilesButtonContainer'>
+        <a href='#' id='playButton' onclick='player.button_press()'>
+          <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In  -->
+          <svg version="1.1"
+             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+             x="0px" y="0px" width="100px" height="100px" viewBox="0 0 100 100" enable-background="new 0 0 100 100"
+             xml:space="preserve">
+
+          <polygon class='triangle' id="XMLID_18_" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="5" points="
+            36,31 75,52 36,75 "/>
+          </svg>
+
+        </a>
+        <div id="files">Select Files</div>
+      </div>
+    </div>
+    <br>
+    <div id='filePickerDiv' style="display:none;">
+      Select Video Files: <input type="file" id="filePicker" accept=".icf" multiple>
+    </div>
+    <button id="toggleAnnotationModeBtn" onclick="player.toggleAnnotationMode()">Annotation Mode</button>
+  </div>
+
+  <div id='playerContainer'>
+    <button id='returnBtn' onclick='player.hide_player()'>&#10094;&nbsp;Return to Menu</button>
+    <button id='issueBtn' onclick='player.report_issue()'>Report an Issue</button>
+    <div id="issueDialog" title="Report an Issue">
+      <p>You can report your issue on GitHub or by sending an email to: robert_reynolds@byu.edu</p>
+    </div>
+    <button id='saveJsonBtn' onclick='player.save_json()'>Save JSON Filters</button>
+    <button id='reloadJsonBtn' onclick='player.reload_json()'>Reload JSON Filters</button>
+    <video id='player' width='1500' height='800' controls="true">
+    </video>
+
+    <div id='box'></div>
+  </div>
+
+  <script>window.$ = window.jQuery = require('../resources/lib/jquery-3.4.1.min.js');</script>
+  <script src="../resources/lib/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="../resources/lib/jquery-ui.css">
+  <script type="text/javascript" src="eventlisteners.js"></script>
+  <script type="text/javascript" src="renderer.js"></script>
+
+</body>
+</html>
