@@ -1,4 +1,3 @@
-
 module.exports = {
   player : {
     $video_obj: $('#player'),
@@ -415,18 +414,18 @@ module.exports = {
       if(player.$video_obj.prop('readyState') < 1) {
         return
       }
+      let annotationErrors = ''
       for (var i = 0; i < player.annotations.length; i++) {
         let a = player.annotations[i]
         let label = a.label || (a.type + ' at time ' + a.start)
-
         if(parseFloat(a.start) < 0.0) {
-          console.log('Start time of ' + label + ' is before the video starts')
+          annotationErrors += 'ANNOTATION ERROR: Start time of ' + label + ' is before the video starts\n\n'
         }
         if(parseFloat(a.end) > player.$video_obj.prop('duration')) {
-          console.log('End time of ' + label + ' is after the video ends')
+          annotationErrors += 'ANNOTATION ERROR: End time of ' + label + ' is after the video ends\n\n'
         }
         if(parseFloat(a.start) > parseFloat(a.end)) {
-          console.log('Start time of ' + label + ' is after the video end time')
+          annotationErrors +='ANNOTATION ERROR: Start time of ' + label + ' is after the video end time\n\n'
         }
 
         if (a.type == 'censor') {
@@ -435,14 +434,19 @@ module.exports = {
           })
 
           if(parseFloat(timeKeys[0]) > parseFloat(a.start)) {
-            console.log('First position time for ' + label + ' is after the start time')
+            annotationErrors += 'ANNOTATION ERROR: First position time for ' + label + ' is after the start time\n\n'
             Object.defineProperty(a.details.position, a.start,
                 Object.getOwnPropertyDescriptor(a.details.position, timeKeys[0]))
             delete a.details.position[timeKeys[0]]
           }
           else if(parseFloat(timeKeys[0]) < parseFloat(a.start)) {
-            console.log('First position time for ' + label + ' is before the start time')
-            a.start = timeKeys[0]
+            if(parseFloat(timeKeys[0]) > 0.0) {
+              annotationErrors += 'ANNOTATION ERROR: First position time for ' + label + ' is before the video starts\n\n'
+            }
+            else {
+              annotationErrors += 'ANNOTATION ERROR: First position time for ' + label + ' is before the start time\n\n'
+              a.start = timeKeys[0]
+            }
           }
         }
 
@@ -450,9 +454,14 @@ module.exports = {
               parseFloat(player.annotations[i-1].start) > parseFloat(a.start)) ||
            (player.annotations[i-2] != null &&
               parseFloat(player.annotations[i-2].start) > parseFloat(a.start))) {
-          console.log('Annotation ' + label + ' is out of order')
+          annotationErrors += 'ANNOTATION ERROR: Annotation ' + label + ' is out of order\n\n'
         }
       }
+
+      dialog.showMessageBoxSync({
+        type: 'warning',
+        message: annotationErrors
+      })
     },
 
     report_issue: () => {

@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron')
+const dialog = require('electron').remote.dialog
 const fs = require('fs')
 const { player } = require('./player.js')
 
