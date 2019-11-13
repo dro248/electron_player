@@ -159,6 +159,9 @@ of a rectangle defined by the `position` value. It is blurred according to the
       "type": "blur",
       "interpolate": true,
       "amount": "30px",
+      "size": {
+        "6": "10"
+      },
       "position": {
         "6":     [0, 0, 15, 15],
         "8":     [10, 10],
