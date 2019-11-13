@@ -15,6 +15,7 @@ code should look something like this:
 [
   {
     "options": {
+      "label": "Logo 0:00:21 - 0:00:35",
       "start": "21",
       "end": "35",
       "type": "skip",
@@ -23,6 +24,7 @@ code should look something like this:
   },
   {
     "options": {
+      "label": "Words 0:00:37 - 0:00:48",
       "start": "37",
       "end": "48",
       "type": "mute",

@@ -108,6 +108,7 @@ module.exports = {
       for(i = 0; i < player.annotations.length; i++) {
         let annotation = {
           'options': {
+            'label': player.annotations[i].label,
             'start': player.annotations[i].start,
             'end': player.annotations[i].end,
             'type': player.annotations[i].type,
@@ -255,19 +256,20 @@ module.exports = {
       }
       for (var i = 0; i < jsonGuts.length; i++) {
         if (jsonObj['media']) {
-          var annotation = {'start': jsonGuts[i].popcornOptions['start'],
+          var annotation = {'label': jsonGuts[i].popcornOptions['label'],
+                            'start': jsonGuts[i].popcornOptions['start'],
                             'end': jsonGuts[i].popcornOptions['end'],
                             'details': jsonGuts[i].popcornOptions['details'],
                             'type': jsonGuts[i]['type']
                            }
         } else {
-          var annotation = {'start': jsonGuts[i].options['start'],
+          var annotation = {'label': jsonGuts[i].options['label'],
+                            'start': jsonGuts[i].options['start'],
                             'end': jsonGuts[i].options['end'],
                             'type': jsonGuts[i].options['type'],
                             'details': jsonGuts[i].options['details']
                            }
         }
-
         if(annotation['type'] == 'censor' && annotation['details']['interpolate']) {
           player.interpolateCensor(annotation)
         }
@@ -408,6 +410,51 @@ module.exports = {
       player.unmute()
     },
 
+    validateAnnotations: () => {
+      console.log('validating')
+      if(player.$video_obj.prop('readyState') < 1) {
+        return
+      }
+      for (var i = 0; i < player.annotations.length; i++) {
+        let a = player.annotations[i]
+        let label = a.label || (a.type + ' at time ' + a.start)
+
+        if(parseFloat(a.start) < 0.0) {
+          console.log('Start time of ' + label + ' is before the video starts')
+        }
+        if(parseFloat(a.end) > player.$video_obj.prop('duration')) {
+          console.log('End time of ' + label + ' is after the video ends')
+        }
+        if(parseFloat(a.start) > parseFloat(a.end)) {
+          console.log('Start time of ' + label + ' is after the video end time')
+        }
+
+        if (a.type == 'censor') {
+          let timeKeys = Object.keys(a.details.position).sort((a,b) => {
+            return parseFloat(a, 10) - parseFloat(b, 10)
+          })
+
+          if(parseFloat(timeKeys[0]) > parseFloat(a.start)) {
+            console.log('First position time for ' + label + ' is after the start time')
+            Object.defineProperty(a.details.position, a.start,
+                Object.getOwnPropertyDescriptor(a.details.position, timeKeys[0]))
+            delete a.details.position[timeKeys[0]]
+          }
+          else if(parseFloat(timeKeys[0]) < parseFloat(a.start)) {
+            console.log('First position time for ' + label + ' is before the start time')
+            a.start = timeKeys[0]
+          }
+        }
+
+        if((player.annotations[i-1] != null &&
+              parseFloat(player.annotations[i-1].start) > parseFloat(a.start)) ||
+           (player.annotations[i-2] != null &&
+              parseFloat(player.annotations[i-2].start) > parseFloat(a.start))) {
+          console.log('Annotation ' + label + ' is out of order')
+        }
+      }
+    },
+
     report_issue: () => {
       if(!player.$video_obj.prop('paused')) {
         player.pause()
@@ -493,6 +540,7 @@ module.exports = {
       Events.addListener(document.getElementById('player'), 'loadedmetadata', ()=> {
         // Draw box initially
         player.draw_box()
+        player.validateAnnotations()
         player.$video_obj.prop('currentTime', player.current_time)
       })
 
@@ -813,6 +861,5 @@ module.exports = {
       }
       requestAnimationFrame(player.onFrameAdv)
     }
-
   }
 }
