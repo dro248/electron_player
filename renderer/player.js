@@ -82,6 +82,10 @@ module.exports = {
     },
 
     reload_json: () => {
+      if(!player.paused) {
+        player.pause()
+      }
+
       console.log('Reloading JSON')
       player.reloading_json = true
       let reload_json_time = player.$video_obj.prop('currentTime')
@@ -102,6 +106,20 @@ module.exports = {
     },
 
     save_json: () => {
+      if(!player.paused) {
+        player.pause()
+      }
+
+      let continueSave = dialog.showMessageBoxSync(null, {
+        type: 'question',
+        buttons: ['Cancel', 'Yes, please'],
+        defaultId: 0,
+        title: 'Question',
+        message: 'Are you sure that you want to do this?',
+        detail: 'Saving JSON filters will overwrite the previous JSON filters',
+      })
+      if (!continueSave) return
+
       let formattedAnnotations = []
       let intPositionObj = {}
       for(i = 0; i < player.annotations.length; i++) {
@@ -433,6 +451,10 @@ module.exports = {
             return parseFloat(a, 10) - parseFloat(b, 10)
           })
 
+          if(a.details.position[timeKeys[0]].length != 4) {
+            annotationErrors += 'ANNOTATION ERROR: First position time for ' + label + ' does not have 4 values\n\n'
+            a.details.position[timeKeys[0]].push(15, 15)
+          }
           if(parseFloat(timeKeys[0]) > parseFloat(a.start)) {
             annotationErrors += 'ANNOTATION ERROR: First position time for ' + label + ' is after the start time\n\n'
             Object.defineProperty(a.details.position, a.start,
@@ -440,13 +462,15 @@ module.exports = {
             delete a.details.position[timeKeys[0]]
           }
           else if(parseFloat(timeKeys[0]) < parseFloat(a.start)) {
-            if(parseFloat(timeKeys[0]) > 0.0) {
+            if(parseFloat(timeKeys[0]) < 0.0) {
               annotationErrors += 'ANNOTATION ERROR: First position time for ' + label + ' is before the video starts\n\n'
             }
             else {
               annotationErrors += 'ANNOTATION ERROR: First position time for ' + label + ' is before the start time\n\n'
-              a.start = timeKeys[0]
             }
+            Object.defineProperty(a.details.position, a.start,
+                Object.getOwnPropertyDescriptor(a.details.position, timeKeys[0]))
+            delete a.details.position[timeKeys[0]]
           }
         }
 
@@ -458,14 +482,16 @@ module.exports = {
         }
       }
 
-      dialog.showMessageBoxSync({
-        type: 'warning',
-        message: annotationErrors
-      })
+      if(annotationErrors.length > 0) {
+        dialog.showMessageBoxSync({
+          type: 'warning',
+          message: annotationErrors
+        })
+      }
     },
 
     report_issue: () => {
-      if(!player.$video_obj.prop('paused')) {
+      if(!player.paused) {
         player.pause()
       }
 
@@ -522,7 +548,7 @@ module.exports = {
         }
 
         for (let i = 1; i < incr; i++) {
-          let tmid = t1 + i * maxTimeInterval
+          let tmid = parseFloat(t1) + i * maxTimeInterval
           let xmid = position[t1][0] + i * xincr
           let ymid = position[t1][1] + i * yincr
           let wmid = null

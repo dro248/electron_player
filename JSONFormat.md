@@ -1,4 +1,4 @@
-# JSON Format for Video Annotations
+# JSON Format Documentation for Video Annotations
 
 There are five types of video annotations:
 1. skip
@@ -119,7 +119,8 @@ censor a smoother.
 
 There are two types of censors: blur and black. The "blur" censor blurs the image
 of a rectangle defined by the `position` value. It is blurred according to the
-`amount` value. The "black" type blacks out a rectangle the as defined by the `position`.
+`amount` value, which ranges from `0px` to infinity, with higher numbers blurring more.
+`30px` is a standard amount . The "black" type blacks out a rectangle the as defined by the `position`.
 
 ### Censor Examples
 #### Solid Color Censor

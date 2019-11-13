@@ -1,46 +1,6 @@
 [
   {
     "options": {
-      "start": "2",
-      "end": "10",
-      "type": "blur",
-      "details": {}
-    }
-  },
-  {
-    "options": {
-      "start": "21",
-      "end": "35",
-      "type": "skip",
-      "details": {}
-    }
-  },
-  {
-    "options": {
-      "start": "37",
-      "end": "48",
-      "type": "mute",
-      "details": {}
-    }
-  },
-  {
-    "options": {
-      "start": "40",
-      "end": "45",
-      "type": "blank",
-      "details": {}
-    }
-  },
-  {
-    "options": {
-      "start": "52",
-      "end": "55",
-      "type": "mute",
-      "details": {}
-    }
-  },
-  {
-    "options": {
       "start": "0",
       "end": "13",
       "type": "censor",
@@ -80,6 +40,14 @@
           "12":    [24, 24]
         }
       }
+    }
+  },
+  {
+    "options": {
+      "start": "2",
+      "end": "10",
+      "type": "blur",
+      "details": {}
     }
   },
   {
@@ -126,6 +94,38 @@
           "18":    [24, 24]
         }
       }
+    }
+  },
+  {
+    "options": {
+      "start": "21",
+      "end": "35",
+      "type": "skip",
+      "details": {}
+    }
+  },
+  {
+    "options": {
+      "start": "37",
+      "end": "48",
+      "type": "mute",
+      "details": {}
+    }
+  },
+  {
+    "options": {
+      "start": "40",
+      "end": "45",
+      "type": "blank",
+      "details": {}
+    }
+  },
+  {
+    "options": {
+      "start": "52",
+      "end": "55",
+      "type": "mute",
+      "details": {}
     }
   }
 ]
