@@ -10,7 +10,7 @@
     <div class='container'>
       <img id='logo' src='../resources/ic_round.png'></img><br>
       <div id='selectFilesButtonContainer'>
-        <a href='#' id='playButton' onclick='player.button_press()'>
+        <a href='#' id='playButton' onclick='player.buttonPress()'>
           <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In  -->
           <svg version="1.1"
              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
@@ -33,13 +33,13 @@
   </div>
 
   <div id='playerContainer'>
-    <button id='returnBtn' onclick='player.hide_player()'>&#10094;&nbsp;Return to Menu</button>
-    <button id='issueBtn' onclick='player.report_issue()'>Report an Issue</button>
+    <button id='returnBtn' onclick='player.hidePlayer()'>&#10094;&nbsp;Return to Menu</button>
+    <button id='issueBtn' onclick='player.reportIssue()'>Report an Issue</button>
     <div id="issueDialog" title="Report an Issue">
       <p>You can report your issue on GitHub or by sending an email to: robert_reynolds@byu.edu</p>
     </div>
-    <button id='saveJsonBtn' onclick='player.save_json()'>Save JSON Filters</button>
-    <button id='reloadJsonBtn' onclick='player.reload_json()'>Reload JSON Filters</button>
+    <button id='saveJsonBtn' onclick='player.saveJson()'>Save JSON Filters</button>
+    <button id='reloadJsonBtn' onclick='player.reloadJson()'>Reload JSON Filters</button>
     <video id='player' width='1500' height='800' controls="true">
     </video>
 

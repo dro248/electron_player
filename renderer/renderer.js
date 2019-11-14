@@ -6,7 +6,7 @@ const { player } = require('./player.js')
 let annotationMode = false;
 
 Events.addListener(window, 'resize', () => {
-  player.draw_box()
+  player.drawBox()
 })
 
 const toggleDevTools = () => {
