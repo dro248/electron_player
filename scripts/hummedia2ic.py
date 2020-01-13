@@ -31,4 +31,4 @@ for track in hum_json['media'][0]['tracks']:
         ic_json.append({'options': options})
 
 ic_json = sorted(ic_json, key=lambda x: float(x['options']['start']))
-out_path.write_text(json.dumps(ic_json).replace('}, {', '},\n {'))
+out_path.write_text(json.dumps(ic_json).replace('}, {', '},\n {') + '\n')
