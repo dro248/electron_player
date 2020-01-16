@@ -335,6 +335,10 @@ video::-webkit-media-controls-panel {
   z-index: 1;
 }
 
+video::-webkit-media-controls-fullscreen-button {
+    display: none;
+}
+
 #box {
   /* Set z-index to MAX VALUE */
   z-index: 2147483647 !important;
