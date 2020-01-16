@@ -331,10 +331,13 @@ video::-webkit-media-controls-panel {
   /*z-index: 100;*/
 }
 
+::-webkit-media-text-track-container {
+  z-index: 1;
+}
 
 #box {
   /* Set z-index to MAX VALUE */
-  z-index: 2/*2147483647*/;
+  z-index: 2147483647 !important;
   border: 0px solid red;
   position: absolute;
   top: 0;
@@ -344,12 +347,12 @@ video::-webkit-media-controls-panel {
 }
 
 .censor {
-  z-index: 3/*2147483647*/;
+  z-index: 2147483647 !important;
   position: relative;
 }
 
 .censor:hover {
-  z-index: 2147483647;
+  z-index: 2147483647 !important;
 }
 
 .censor-annotate:hover::after {

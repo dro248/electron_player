@@ -515,6 +515,7 @@ module.exports = {
         // Draw box initially
         player.drawBox()
         player.validateAnnotations()
+        console.log('loadedmetadata during skip')
         player.$videoObj.prop('currentTime', player.currTime)
       })
 
@@ -543,6 +544,7 @@ module.exports = {
       //Add listener to update censor tooltip and update player.pause on pause
       Events.addListener(document.getElementById('player'), 'pause', () => {
         player.paused = true
+        console.log('paused while skipping')
         if(player.annotations) {
           for (var i = 0; i < player.annotations.length; i++) {
             if (player.annotations[i].type == 'censor') {
@@ -859,6 +861,13 @@ module.exports = {
     },
 
     skipTo: (time) => {
+      player.$videoObj.prop('controls', false)
+      /*
+      This will completely remove the controls
+      $('<style>').attr('id', 'skip').html(`
+        ::-webkit-media-controls-enclosure {
+          display:none !important;
+        }`).appendTo(document.body)*/
       player.$videoObj.prop('currentTime', time)
       player.currTime = time
       player.onFrameAdv()
