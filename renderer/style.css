@@ -341,7 +341,7 @@ video::-webkit-media-controls-fullscreen-button {
 
 #box {
   /* Set z-index to MAX VALUE */
-  z-index: 2147483647 !important;
+  z-index: 2;
   border: 0px solid red;
   position: absolute;
   top: 0;
@@ -351,12 +351,12 @@ video::-webkit-media-controls-fullscreen-button {
 }
 
 .censor {
-  z-index: 2147483647 !important;
+  z-index: 3;
   position: relative;
 }
 
 .censor:hover {
-  z-index: 2147483647 !important;
+  z-index: 2147483647;
 }
 
 .censor-annotate:hover::after {

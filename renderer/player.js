@@ -62,6 +62,9 @@ module.exports = {
       $('#reloadJsonBtn').css('visibility', 'hidden')
       $('#saveJsonBtn').css('visibility', 'hidden')
 
+      $('#returnBtn').css('visibility', 'hidden')
+      $('#issueBtn').css('visibility', 'hidden')
+
       // Remove inkeyup listener
       $(document).keyup(null)
       $(document).keydown(null)
@@ -323,6 +326,17 @@ module.exports = {
       $('#reloadJsonBtn').css('visibility', annotationMode ? 'visible' : 'hidden')
       $('#saveJsonBtn').css('visibility', annotationMode ? 'visible' : 'hidden')
 
+      if (!window.screenTop && !window.screenY) {
+          $('#returnBtn').css('visibility', 'hidden')
+          $('#issueBtn').css('visibility', 'hidden')
+          console.log('hidden')
+      }
+      else {
+        $('#returnBtn').css('visibility', 'visible')
+        $('#issueBtn').css('visibility', 'visible')
+        console.log('visible')
+      }
+
       // Hide Splash Screen
       $('#splashScreen').css('visibility', 'hidden')
 
@@ -545,6 +559,10 @@ module.exports = {
       Events.addListener(document.getElementById('player'), 'pause', () => {
         player.paused = true
         console.log('paused while skipping')
+        if (!window.screenTop && !window.screenY) {
+          $('#returnBtn').css('visibility', 'visible')
+          $('#issueBtn').css('visibility', 'visible')
+        }
         if(player.annotations) {
           for (var i = 0; i < player.annotations.length; i++) {
             if (player.annotations[i].type == 'censor') {
@@ -584,6 +602,10 @@ module.exports = {
           if (player.annotations[i].type == 'censor') {
             $('#censor' + i).tooltip('disable');
           }
+        }
+        if (!window.screenTop && !window.screenY) {
+            $('#returnBtn').css('visibility', 'hidden')
+            $('#issueBtn').css('visibility', 'hidden')
         }
       })
 
