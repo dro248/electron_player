@@ -844,13 +844,13 @@ module.exports = {
                 else {
                   annoTime = Object.keys(a.details.position).reduce((prev, curr) => Math.abs(curr - time) < Math.abs(prev - time) ? curr : prev) //closest to current time
                   $censor.css({
-                    left: aDetails['positions'][annoTime][0]+'%',
-                    top: aDetails['positions'][annoTime][1]+'%'
+                    left: aDetails['position'][annoTime][0]+'%',
+                    top: aDetails['position'][annoTime][1]+'%'
                   })
                   if (aDetails['position'][annoTime][2] && aDetails['position'][annoTime][3]) {
                     $censor.css({
-                      width: aDetails['positions'][annoTime][2]+'%',
-                      height: aDetails['positions'][annoTime][3]+'%'
+                      width: aDetails['position'][annoTime][2]+'%',
+                      height: aDetails['position'][annoTime][3]+'%'
                     })
                   }
                 }
