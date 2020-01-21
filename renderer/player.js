@@ -543,6 +543,14 @@ module.exports = {
         player.$videoObj.prop('controls', true)
       })
 
+      Events.addListener(document.getElementById('box'), 'mousemove', () => {
+        player.$videoObj.prop('controls', true)
+      })
+
+      Events.addListener(document.getElementById('player'), 'onclick', () => {
+        player.paused ? player.play() : player.pause()
+      })
+
       //Add listener to prevent default seeking with arrow keys
       Events.addListener(document.getElementById('player'), 'seeked', () => {
         if(player.paused && player.currTime + 1.5 < player.$videoObj.prop('currentTime')) {

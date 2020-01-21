@@ -214,7 +214,7 @@ h1{
   position: absolute;
   top: 0;
   left: 2px;
-  z-index: 3;
+  z-index: 2000;
   background-color: rgba(255,255,255, 0.2);
   color: rgba(255,255,255,0.5);
   border: 1px solid black;
@@ -240,7 +240,7 @@ h1{
   position: absolute;
   top: 0;
   left: 123px;
-  z-index: 3;
+  z-index: 2000;
   background-color: rgba(255,255,255, 0.2);
   color: rgba(255,255,255,0.5);
   border: 1px solid black;
@@ -269,7 +269,7 @@ h1{
   position: absolute;
   top: 0;
   right: 2px;
-  z-index: 3;
+  z-index: 2000;
   background-color: rgba(255,255,255, 0.2);
   color: rgba(255,255,255,0.5);
   border: 1px solid black;
@@ -294,7 +294,7 @@ h1{
   position: absolute;
   top: 0;
   right: 138px;
-  z-index: 3;
+  z-index: 2000;
   background-color: rgba(255,255,255, 0.2);
   color: rgba(255,255,255,0.5);
   border: 1px solid black;
@@ -328,7 +328,7 @@ video::-webkit-media-text-track-display {
 
 /*Styling the video controls panel*/
 video::-webkit-media-controls-panel {
-  /*z-index: 100;*/
+  z-index: 400;
 }
 
 ::-webkit-media-text-track-container {
