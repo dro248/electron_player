@@ -351,8 +351,8 @@ video::-webkit-media-controls-fullscreen-button {
 }
 
 .censor {
-  z-index: 3;
   position: relative;
+  z-index: 2147483647;
 }
 
 .censor:hover {
