@@ -8,7 +8,7 @@ def hms2s(time_str):
     """Convert HH:MM:SS times to seconds."""
     output = [time_str]
     for t in re.findall('([0-9:]+(?:\.[0-9]+)?)', time_str, flags=re.S):
-        times = [float(i) for i in t.split(':')]
+        times = [float(i) for i in t.split(':') if i]
         size = len(times)
         if size > 3:
             raise NotImplementedError('Expected input: HH:MM:SS or MM:SS.')
