@@ -1,30 +1,31 @@
-"""Convert between HH:MM:SS and seconds."""
+"""Convert between HH:MM:SS and seconds, output as JSON blur annotations.
+
+Tab-delimited input format:
+
+HH:MM:SS<TAB>description
+MM:SS<TAB>description
+...
+"""
+
 import datetime as dt
 import re
 import sys
+import warnings
 
 
 def hms2s(time_str):
     """Convert HH:MM:SS times to seconds."""
-    output = [time_str]
-    for t in re.findall('([0-9:]+(?:\.[0-9]+)?)', time_str, flags=re.S):
-        times = [float(i) for i in t.split(':') if i]
-        size = len(times)
-        if size > 3:
-            raise NotImplementedError('Expected input: HH:MM:SS or MM:SS.')
-        elif size == 3:
-            h, m, s = times
-        elif size == 2:
-            h = 0
-            m, s = times
-        elif size == 1:
-            h, m = 0, 0
-            s = times[0]
-        else:
-            continue
-        tot = dt.timedelta(hours=h, minutes=m, seconds=s).total_seconds()
-        output.append(tot)
-    return output
+    times = [float(i) for i in time_str.split(':')]
+    size = len(times)
+    if size > 3:
+        raise NotImplementedError('Expected input: HH:MM:SS or MM:SS.')
+    elif 1 <= size <= 3:
+        padding = [0] * (3 - size)
+        h, m, s = *padding, *times
+    else:
+        warnings.warn(f'time_str cannot be processed: {time_str}')
+        return None
+    return dt.timedelta(hours=h, minutes=m, seconds=s).total_seconds()
 
 
 def s2hms(secs, rounding=True):
@@ -37,4 +38,30 @@ def s2hms(secs, rounding=True):
 if __name__ == '__main__':
     in_lines = sys.stdin.readlines()
     for line in in_lines:
-        print(*hms2s(line.rstrip()), sep='\t')
+        line = line.strip()
+        try:
+            start, desc = line.split(maxsplit=1)
+        except ValueError:
+            warnings.warn(f'line skipped: {line}')
+            continue
+        desc = desc.strip()
+        seconds = hms2s(start)
+        try:
+            end = seconds + 10
+        except ValueError:
+            end = seconds
+        print( '  {\n'
+               '    "options": {\n'
+              f'      "label": "{desc}  {start}",\n'
+              f'      "start": "{seconds}",\n'
+              f'      "end": "{end}",\n'
+               '      "type": "censor",\n'
+               '      "details": {\n'
+               '        "type": "blur",\n'
+               '        "amount": "30px",\n'
+               '        "position": {\n'
+              f'          "{seconds}":     [55, 79, 4, 5]\n'
+               '        }\n'
+               '      }\n'
+               '    }\n'
+               '  }\n\n')

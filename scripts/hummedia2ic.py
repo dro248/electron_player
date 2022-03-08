@@ -5,8 +5,8 @@ import sys
 from hms2s import s2hms
 
 in_path = Path(sys.argv[1])
-out_path = in_path.parents[0] / Path(f'ic_{in_path.name}')
-print(f'Writing output file to ic_{in_path.name}', file=sys.stderr)
+out_path = Path(f'/tmp/{in_path.name}')
+print(f'Writing output file to {out_path}', file=sys.stderr)
 
 hum_json = json.loads(in_path.read_text())
 ic_json = []
