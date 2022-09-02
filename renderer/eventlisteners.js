@@ -1,4 +1,4 @@
-const Events = (function() {
+const Events = (function () {
     var listeners = []
 
     const matcher = (element, eventname) => {
@@ -12,7 +12,7 @@ const Events = (function() {
             return false
         }
         element.addEventListener(eventname, callback)
-        listeners.push({element:element, eventname:eventname, callback:callback})
+        listeners.push({ element: element, eventname: eventname, callback: callback })
         return true
     }
 

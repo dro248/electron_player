@@ -14,7 +14,7 @@ const toggleDevTools = () => {
 }
 
 ipcRenderer.on('response-cmd-argv', (event, argv) => {
-  if(argv[2] == 'annotate' || argv[2] == 'a' || argv[2] == '-a') {
+  if (argv[2] == 'annotate' || argv[2] == 'a' || argv[2] == '-a') {
     player.toggleAnnotationMode()
   }
 })

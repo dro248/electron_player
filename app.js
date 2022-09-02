@@ -4,13 +4,13 @@ const path = require('path')
 const argv = process.argv;
 var mainWindow = null;
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1000,
-		height: 780,
-		frame: true,
-		icon: path.join(__dirname, '/resources/filmstrip.png'),
+    height: 780,
+    frame: true,
+    icon: path.join(__dirname, '/resources/filmstrip.png'),
     webPreferences: {
       nodeIntegration: true
     }
@@ -27,10 +27,10 @@ ipcMain.on('request-cmd-argv', (event, arg) => {
 })
 
 ipcMain.on('toggle-dev-tools', (event, annotationMode) => {
-  if(annotationMode && !mainWindow.webContents.isDevToolsOpened()) {
+  if (annotationMode && !mainWindow.webContents.isDevToolsOpened()) {
     mainWindow.webContents.toggleDevTools()
   }
-  else if(!annotationMode && mainWindow.webContents.isDevToolsOpened()) {
+  else if (!annotationMode && mainWindow.webContents.isDevToolsOpened()) {
     mainWindow.webContents.toggleDevTools()
   }
 })
