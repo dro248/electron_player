@@ -197,7 +197,7 @@ module.exports = {
         const icfObj = JSON.parse(icfData)
 
         const jsonPath = icfFile['path'].replace(/\/[^\/]*$/, '/' + icfObj['annotation'])
-        const videoPath = icfFile['path'].replace(/\/[^\/]*$/, '/' + icfObj['video'])
+        const videoPath = icfFile['path'].replace(/\/[^\/]*$/, '/.ic/' + icfObj['video'])
 
         jsonFileExists = true
         jsonFile = {

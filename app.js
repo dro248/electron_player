@@ -9,6 +9,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 780,
+    fullscreenable: true,
     frame: true,
     icon: path.join(__dirname, '/resources/filmstrip.png'),
     webPreferences: {
