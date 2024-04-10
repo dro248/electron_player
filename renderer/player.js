@@ -216,6 +216,27 @@ module.exports = {
         : false
     },
 
+
+    // Load the files
+    generateICDirectory: () => {
+      var HOME = process.env.HOME
+      var videoFile = document.getElementById('mp4FilePicker').files[0]
+      var jsonFile = document.getElementById('jsonFilePicker').files[0]
+      var stem = videoFile.name.split(`.`)[0]
+      var dirName = HOME + `/Desktop/` + stem
+      var hiddenDirName = dirName + `/.ic`
+      if (!fs.existsSync(hiddenDirName)){
+        fs.mkdirSync(hiddenDirName, { recursive: true });
+      }
+      fs.copyFile(videoFile.path, hiddenDirName + `/` + videoFile.name, (err) => {if (err) alert(err)})
+      fs.copyFile(jsonFile.path, dirName + `/` + stem + `.json`, (err) => {if (err) alert(err)})
+      var icfString = JSON.stringify({"subtitle": null,
+                                    "video": videoFile.name,
+                                    "annotation": stem + `.json`})
+      fs.writeFile(dirName + `/` + stem + `.icf`, icfString, `utf8`, (err) => {if (err) alert(err)})
+      alert(`Unless you received errors, your IC file has been created on the Desktop.`)
+    },
+
     // Get dimensions of the video
     getVideoDimensions: () => {
       var $video = player.$videoObj

@@ -172,11 +172,10 @@ h1{
   position:fixed;
   right: 10px;
   top: 10px;
-  background-color: orange;
-  color: white;
+  background-color: #00000000;
+  color: darkgray;
   border: none;
   border-radius: 7px;
-  box-shadow: 0 5px gray;
   display: inline-block;
   padding: 5px;
   font-size: 16px;
@@ -186,7 +185,7 @@ h1{
 }
 
 #toggleAnnotationModeBtn:hover {
-  background-color: orangered;
+  background-color: gray;
 }
 
 #toggleAnnotationModeBtn.active, #toggleAnnotationModeBtn:active {
