@@ -229,10 +229,15 @@ module.exports = {
         fs.mkdirSync(hiddenDirName, { recursive: true });
       }
       fs.copyFile(videoFile.path, hiddenDirName + `/` + videoFile.name, (err) => {if (err) alert(err)})
-      fs.copyFile(jsonFile.path, dirName + `/` + stem + `.json`, (err) => {if (err) alert(err)})
+
+      if (jsonFile) {
+        fs.copyFile(jsonFile.path, dirName + `/` + stem + `.json`, (err) => {if (err) alert(err)})
+        jsonPath = stem + '.json'
+      } else { jsonPath = null}
+
       var icfString = JSON.stringify({"subtitle": null,
                                     "video": videoFile.name,
-                                    "annotation": stem + `.json`})
+                                    "annotation": jsonPath})
       fs.writeFile(dirName + `/` + stem + `.icf`, icfString, `utf8`, (err) => {if (err) alert(err)})
       alert(`Unless you received errors, your IC file has been created on the Desktop.`)
     },
